@@ -1,0 +1,164 @@
+.SplitContent {
+    -webkit-box-sizing: border-box;
+    /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;
+    /* Firefox, other Gecko */
+    box-sizing: border-box;
+    /* Opera/IE 8+ */
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    align-items: flex-start;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+@media only screen and (max-width: 480px) {
+    .SplitContentLeft {
+        -webkit-box-sizing: border-box;
+        /* Safari/Chrome, other WebKit */
+        -moz-box-sizing: border-box;
+        /* Firefox, other Gecko */
+        box-sizing: border-box;
+        /* Opera/IE 8+ */
+        display: none;
+    }
+}
+
+@media only screen and (min-width: 480px) {
+    .SplitContentLeft {
+        -webkit-box-sizing: border-box;
+        /* Safari/Chrome, other WebKit */
+        -moz-box-sizing: border-box;
+        /* Firefox, other Gecko */
+        box-sizing: border-box;
+        /* Opera/IE 8+ */
+        width: 12.5%;
+        height: 100vh;
+        border-right: #00ffd1 solid 1px;
+        overflow: auto;
+        background-color: whitesmoke;
+        padding: 24px;
+    }
+}
+
+.SplitContentRight {
+    -webkit-box-sizing: border-box;
+    /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;
+    /* Firefox, other Gecko */
+    box-sizing: border-box;
+    /* Opera/IE 8+ */
+    width: 100%;
+    height: 100vh;
+    overflow: auto;
+    padding: 24px;
+}
+
+@media only screen and (max-width: 480px) {
+    .SplitContentSideMenu {
+        -webkit-box-sizing: border-box;
+        /* Safari/Chrome, other WebKit */
+        -moz-box-sizing: border-box;
+        /* Firefox, other Gecko */
+        box-sizing: border-box;
+        /* Opera/IE 8+ */
+        display: none;
+    }
+}
+
+@media only screen and (min-width: 480px) {
+    .SplitContentSideMenu {
+        -webkit-box-sizing: border-box;
+        /* Safari/Chrome, other WebKit */
+        -moz-box-sizing: border-box;
+        /* Firefox, other Gecko */
+        box-sizing: border-box;
+        /* Opera/IE 8+ */
+        width: 12.5%;
+        height: 100vh;
+        overflow: auto;
+        border-left: #00ffd1 solid 1px;
+        background-color: whitesmoke;
+        padding: 24px;
+    }
+}
+
+
+.FiltersContainer {
+    -webkit-box-sizing: border-box;
+    /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;
+    /* Firefox, other Gecko */
+    box-sizing: border-box;
+    /* Opera/IE 8+ */
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+}
+
+.basic-multi-select {
+    margin-bottom: 8px;
+    border-top: 0px;
+    border-bottom-left-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
+    width: 100%;
+}
+
+.basic-single {
+    margin-bottom: 0px;
+    border-top: 0px;
+    border-bottom-left-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
+    width: 100%;
+}
+
+.CreateAdjustmentCard {
+    padding-top: 0px;
+}
+
+.btn-div {
+    margin-top: 10px;
+    margin-left: 100px;
+}
+
+.card-div {
+    min-width: 275;
+    margin-top: 2.5px;
+    margin-bottom: 7.5px;
+}
+
+.article-nav {
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+}
+
+.title-tags-div {
+    min-width: 275;
+    margin-top: 2.5px;
+    margin-bottom: 7.5px;
+    padding: 10px;
+    overflow-x: scroll;
+}
+
+.card-btns {
+    padding: 0.5%;
+}
+
+.select__multi-value__label {
+    background-color: whitesmoke;
+}
+
+.select__multi-value__remove {
+    background-color: whitesmoke;
+}
+
+.select__multi-value__label-negated {
+    background-color: lightcoral;
+}
