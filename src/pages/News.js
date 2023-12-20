@@ -5,6 +5,7 @@ import InfiniteScroll from "react-infinite-scroller";
 import { useInfiniteQuery } from "react-query";
 import SplitContent from "../components/SplitContent"
 import Tags from '../components/TitleTags';
+import AdsComponent from '../components/AdComponent';
 import "../assets/app.css"
 
 export default function Home() {
@@ -61,6 +62,7 @@ export default function Home() {
                             )}
                         </InfiniteScroll>
                     )}
+                    <AdsComponent />
                 </>
             }
             sideMenu={<br></br>}
