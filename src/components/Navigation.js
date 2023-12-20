@@ -3,6 +3,7 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import ButtonMailto from './MailComponent';
 // import IconButton from '@mui/material/IconButton';
 // import MenuIcon from '@mui/icons-material/Menu';
 import logo from '../assets/favicon.png';
@@ -21,6 +22,7 @@ export default function NavigationBar() {
                     >
                         <MenuIcon />
                     </IconButton> */}
+                    <ButtonMailto label={"Contact Us"} mailto={'insurancewatcher@outlook.com'} />
                     <Box
                         component="img"
                         sx={{ height: 40 }}

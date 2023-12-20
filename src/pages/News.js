@@ -46,7 +46,7 @@ export default function Home() {
                     {isLoading ? (
                         <div class='loader-div'><CircularProgress color='secondary' /></div>
                     ) : isError ? (
-                        <Alert severity="warning">There was an error</Alert>
+                        <Alert severity="warning">Loading error, please try again!</Alert>
                     ) : (
                         <InfiniteScroll style={{ height: '120%' }} hasMore={hasNextPage} loadMore={fetchNextPage}>
                             {data.pages.map((page) =>
