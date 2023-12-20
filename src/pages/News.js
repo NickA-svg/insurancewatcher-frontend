@@ -1,22 +1,14 @@
 import React from 'react';
-import Responses from '../services/GetResponse'
+import NewsCard from '../components/NewsCard';
+import { CircularProgress, Alert } from '@mui/material';
+import InfiniteScroll from "react-infinite-scroller";
+import { useInfiniteQuery } from "react-query";
 import SplitContent from "../components/SplitContent"
 import Tags from '../components/TitleTags';
-import Stack from '@mui/material/Stack';
-import IconButton from '@mui/material/IconButton';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import "../assets/app.css"
 
 export default function Home() {
     const [tagWord, setTag] = React.useState("All")
-    const [page, setPage] = React.useState(0)
-
-    function handleNext() {
-        setPage(prevPage => prevPage + 1)
-    }
-    function handleBack() {
-        setPage(prevPage => prevPage === 0 ? 0 : prevPage - 1)
-    }
 
     function handleTag(event) {
         let tagText = event.target.firstChild.data
@@ -24,8 +16,25 @@ export default function Home() {
             tagText = event.target.id
         }
         setTag(tagText)
-        setPage(0)
     }
+    const fetchArticles = async ({ pageParam = 0 }) => {
+        const response = await fetch(process.env.REACT_APP_API_KEY.concat("articles/" + pageParam + "/" + tagWord));
+        const results = await response.json();
+        return { results, nextPage: pageParam + 1, totalPages: 100 };
+    }
+
+    const {
+        data,
+        isLoading,
+        isError,
+        hasNextPage,
+        fetchNextPage
+    } = useInfiniteQuery(["articles", tagWord], fetchArticles, {
+        getNextPageParam: (lastPage, pages) => {
+            if (lastPage.nextPage < lastPage.totalPages) return lastPage.nextPage;
+            return undefined;
+        }
+    });
 
     return (<>
         <SplitContent
@@ -33,19 +42,25 @@ export default function Home() {
             rightColumn={
                 <>
                     <Tags handleTag={handleTag} tag={tagWord} />
-                    <Responses root="articles" page={page} tag={tagWord} value="response" />
-                    <div className='article-nav'>
-                        <Stack direction="row" spacing={1} >
-                            <IconButton onClick={handleBack} disabled={page === 0 ? true : false}>
-                                <ArrowBackIosIcon />
-                                Back
-                            </IconButton>
-                            <IconButton onClick={handleNext}>
-                                Next
-                                <ArrowForwardIosIcon />
-                            </IconButton>
-                        </Stack>
-                    </div>
+                    {isLoading ? (
+                        <div class='loader-div'><CircularProgress color='secondary' /></div>
+                    ) : isError ? (
+                        <Alert severity="warning">There was an error</Alert>
+                    ) : (
+                        <InfiniteScroll style={{ height: '120%' }} hasMore={hasNextPage} loadMore={fetchNextPage}>
+                            {data.pages.map((page) =>
+                                page.results.map((card, index) => <NewsCard
+                                    title={card.Title}
+                                    date={card.YearMonthDay}
+                                    summary={card.Summary}
+                                    url={card.Link}
+                                    tags={card.Tags}
+                                    searchTag={tagWord}
+                                    key={index}
+                                />)
+                            )}
+                        </InfiniteScroll>
+                    )}
                 </>
             }
             sideMenu={<br></br>}

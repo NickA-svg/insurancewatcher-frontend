@@ -133,6 +133,12 @@
     margin-bottom: 7.5px;
 }
 
+.loader-div {
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+}
+
 .article-nav {
     padding: 5px;
     display: flex;

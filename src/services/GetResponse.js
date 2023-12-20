@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import NewsCard from '../components/NewsCard'
-// import http from "../http-common";
 
 const ResponseContext = React.createContext({
     repsonse: [], fetchResponse: () => { }
