@@ -3,8 +3,8 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
+// import IconButton from '@mui/material/IconButton';
+// import MenuIcon from '@mui/icons-material/Menu';
 import logo from '../assets/favicon.png';
 
 export default function NavigationBar() {
@@ -12,7 +12,7 @@ export default function NavigationBar() {
         <Box sx={{ flexGrow: 1, width: "auto" }}>
             <AppBar position="static" color="primary">
                 <Toolbar>
-                    <IconButton
+                    {/* <IconButton
                         size="large"
                         edge="start"
                         color="inherit"
@@ -20,7 +20,7 @@ export default function NavigationBar() {
                         sx={{ mr: 2 }}
                     >
                         <MenuIcon />
-                    </IconButton>
+                    </IconButton> */}
                     <Box
                         component="img"
                         sx={{ height: 40 }}
@@ -29,7 +29,7 @@ export default function NavigationBar() {
                         style={{ paddingRight: "10px", paddingBottom: "8px" }}
                     />
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        Insurance Market Tracker
+                        Insurance Watcher
                     </Typography>
                 </Toolbar>
             </AppBar>
