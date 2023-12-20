@@ -22,7 +22,6 @@ export default function NavigationBar() {
                     >
                         <MenuIcon />
                     </IconButton> */}
-                    <ButtonMailto label={"Contact Us"} mailto={'insurancewatcher@outlook.com'} />
                     <Box
                         component="img"
                         sx={{ height: 40 }}
@@ -33,6 +32,7 @@ export default function NavigationBar() {
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         Insurance Watcher
                     </Typography>
+                    <ButtonMailto label={"Contact Us"} mailto={'insurancewatcher@outlook.com'} />
                 </Toolbar>
             </AppBar>
         </Box>
