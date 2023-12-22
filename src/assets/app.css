@@ -39,7 +39,7 @@
         height: 100vh;
         border-right: #00ffd1 solid 1px;
         overflow: auto;
-        background-color: whitesmoke;
+        background-color: lightgrey;
         padding: 24px;
     }
 }
@@ -55,6 +55,7 @@
     height: 100vh;
     overflow: auto;
     padding: 24px;
+    background-color: #f9f9f9;
 }
 
 @media only screen and (max-width: 480px) {
@@ -81,7 +82,7 @@
         height: 100vh;
         overflow: auto;
         border-left: #00ffd1 solid 1px;
-        background-color: whitesmoke;
+        background-color: lightgrey;
         padding: 24px;
     }
 }
@@ -100,6 +101,11 @@
     flex-direction: column;
     align-items: flex-start;
     flex-wrap: nowrap;
+}
+
+div.MuiInputBase-root {
+    border-radius: 5px !important;
+    border-color: #00ffd1 !important;
 }
 
 .basic-multi-select {

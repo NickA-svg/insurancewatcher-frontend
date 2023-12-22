@@ -30,7 +30,7 @@ export default function NavigationBar() {
                         style={{ paddingRight: "10px", paddingBottom: "8px" }}
                     />
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        Insurance Watcher
+                        InsuranceWatcher
                     </Typography>
                     <ButtonMailto label={"Contact Us"} mailto={'insurancewatcher@outlook.com'} />
                 </Toolbar>

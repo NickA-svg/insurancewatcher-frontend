@@ -9,22 +9,34 @@ import Share from '@mui/icons-material/Share';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import { Tooltip } from '@mui/material';
-
+import IJ from "../assets/insurancejournal.png"
+import IA from "../assets/ia.jpeg"
+import II from "../assets/theinsuranceinsider.jpeg"
+import CJ from "../assets/claimsjournal.png"
+import RN from "../assets/ReNews.png"
+import IP from "../assets/insurancepost.jpeg"
+import TI from "../assets/TheInsurer.png"
+import AR from "../assets/artemis.jpeg"
+import FT from "../assets/ft.png"
+import AT from "../assets/atlas.png"
 
 const links = {
-    "www.insurancejournal.com": { "name": "IJ", "color": "#af231c" },
-    "www.insuranceage.co.uk": { "name": "IA", "color": "#44b8ae" },
-    "www.reinsurancene.ws": { "name": "Re", "color": "#007aff" },
-    "www.insuranceinsider.com": { "name": "II", "color": "#e30513" },
-    "www.postonline.co.uk": { "name": "PO", "color": "#335fc8" },
-    "www.theinsurer.com": { "name": "TI", "color": "#3b3b53" },
-    "www.artemis.bm": { "name": "Ar", "color": "#121942" },
+    "www.insurancejournal.com": { "name": "IJ", "color": "#af231c", "source": IJ },
+    "www.insuranceage.co.uk": { "name": "IA", "color": "#44b8ae", "source": IA },
+    "www.reinsurancene.ws": { "name": "Re", "color": "#007aff", "source": RN },
+    "www.insuranceinsider.com": { "name": "II", "color": "#e30513", "source": II },
+    "www.postonline.co.uk": { "name": "PO", "color": "#335fc8", "source": IP },
+    "www.theinsurer.com": { "name": "TI", "color": "#3b3b53", "source": TI },
+    "www.artemis.bm": { "name": "Ar", "color": "#121942", "source": AR },
+    "www.ft.com": { "name": "FT", "color": "#fcd0b1", "source": FT },
+    "www.claimsjournal.com": { "name": "CJ", "color": "#172a7c", "source": CJ },
+    "www.atlas-mag.net": { "name": "AT", "color": "#de201e", "source": AT }
 }
 
 export default function NewsCard(props) {
     const base_url = props.url.split("/")[2]
-    const name = links[base_url]["name"]
     const av_color = links[base_url]["color"]
+    const source = links[base_url]["source"]
 
     return (
         <div className="card-div">
@@ -33,9 +45,7 @@ export default function NewsCard(props) {
                     avatar={
                         <IconButton aria-label="settings" href={"https://" + base_url} target="_blank">
                             <Tooltip title={base_url}>
-                                <Avatar sx={{ width: 56, height: 56, bgcolor: av_color }} aria-label="recipe">
-                                    {name}
-                                </Avatar>
+                                <Avatar srcSet={source} sx={{ width: 80, height: 80, bgcolor: av_color }} aria-label="recipe" />
                             </Tooltip>
                         </IconButton>
                     }

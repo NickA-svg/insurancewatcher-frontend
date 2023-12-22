@@ -6,10 +6,12 @@ import { useInfiniteQuery } from "react-query";
 import SplitContent from "../components/SplitContent"
 import Tags from '../components/TitleTags';
 import AdsComponent from '../components/AdComponent';
+import SearchBar from '../components/SearchBar';
 import "../assets/app.css"
 
 export default function Home() {
     const [tagWord, setTag] = React.useState("All")
+    const [searchQuery, setSearchQuery] = React.useState("All");
 
     function handleTag(event) {
         let tagText = event.target.firstChild.data
@@ -19,7 +21,7 @@ export default function Home() {
         setTag(tagText)
     }
     const fetchArticles = async ({ pageParam = 0 }) => {
-        const response = await fetch(process.env.REACT_APP_API_KEY.concat("articles/" + pageParam + "/" + tagWord));
+        const response = await fetch(process.env.REACT_APP_API_KEY.concat("articles/" + pageParam + "/" + tagWord + "/" + searchQuery));
         const results = await response.json();
         return { results, nextPage: pageParam + 1, totalPages: 100 };
     }
@@ -30,7 +32,7 @@ export default function Home() {
         isError,
         hasNextPage,
         fetchNextPage
-    } = useInfiniteQuery(["articles", tagWord], fetchArticles, {
+    } = useInfiniteQuery(["articles", tagWord, searchQuery], fetchArticles, {
         getNextPageParam: (lastPage, pages) => {
             if (lastPage.nextPage < lastPage.totalPages) return lastPage.nextPage;
             return undefined;
@@ -43,12 +45,13 @@ export default function Home() {
             rightColumn={
                 <>
                     <Tags handleTag={handleTag} tag={tagWord} />
+                    <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
                     {isLoading ? (
                         <div class='loader-div'><CircularProgress color='secondary' /></div>
                     ) : isError ? (
                         <Alert severity="warning">Loading error, please try again!</Alert>
                     ) : (
-                        <InfiniteScroll style={{ height: '120%' }} hasMore={hasNextPage} loadMore={fetchNextPage}>
+                        <InfiniteScroll style={{ height: '100%' }} hasMore={hasNextPage} loadMore={fetchNextPage}>
                             {data.pages.map((page) =>
                                 page.results.map((card, index) => <NewsCard
                                     title={card.Title}
@@ -58,8 +61,7 @@ export default function Home() {
                                     tags={card.Tags}
                                     searchTag={tagWord}
                                     key={index}
-                                />)
-                            )}
+                                />))}
                         </InfiniteScroll>
                     )}
                     <AdsComponent />
