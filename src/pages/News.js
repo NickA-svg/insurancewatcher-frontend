@@ -52,7 +52,7 @@ export default function Home() {
                     {isLoading ? (
                         <div class='loader-div'><CircularProgress color='secondary' /></div>
                     ) : isError ? (
-                        <Alert severity="warning">Loading error, please try again or amed search query!</Alert>
+                        <Alert severity="warning">Loading error, please try again or amend search query!</Alert>
                     ) : (
                         <>
                             <InfiniteScroll id="target" useWindow={false} hasMore={hasNextPage} loadMore={fetchNextPage}>
