@@ -54,20 +54,22 @@ export default function Home() {
                     ) : isError ? (
                         <Alert severity="warning">Loading error, please try again or amed search query!</Alert>
                     ) : (
-                        <InfiniteScroll id="target" useWindow={false} hasMore={hasNextPage} loadMore={fetchNextPage}>
-                            {data.pages.map((page) =>
-                                page.results.map((card, index) => <NewsCard
-                                    title={card.Title}
-                                    date={card.YearMonthDay}
-                                    summary={card.Summary}
-                                    url={card.Link}
-                                    tags={card.Tags}
-                                    searchTag={tagWord}
-                                    key={index}
-                                />))}
-                        </InfiniteScroll>
+                        <>
+                            <InfiniteScroll id="target" useWindow={false} hasMore={hasNextPage} loadMore={fetchNextPage}>
+                                {data.pages.map((page) =>
+                                    page.results.map((card, index) => <NewsCard
+                                        title={card.Title}
+                                        date={card.YearMonthDay}
+                                        summary={card.Summary}
+                                        url={card.Link}
+                                        tags={card.Tags}
+                                        searchTag={tagWord}
+                                        key={index}
+                                    />))}
+                            </InfiniteScroll>
+                            <ScrollButton id="target" />
+                        </>
                     )}
-                    <ScrollButton id="target" />
                     <AdsComponent />
                 </>
             }
