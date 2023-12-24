@@ -7,7 +7,7 @@ export function SplitContent({ leftColumm, rightColumn, sideMenu }) {
             <div className="SplitContentLeft">
                 {leftColumm}
             </div>
-            <div className="SplitContentRight">
+            <div className="SplitContentRight" id="SplitContentRight">
                 {rightColumn}
             </div>
             <div className="SplitContentSideMenu">

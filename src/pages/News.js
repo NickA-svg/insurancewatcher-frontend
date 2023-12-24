@@ -7,6 +7,7 @@ import SplitContent from "../components/SplitContent"
 import Tags from '../components/TitleTags';
 import AdsComponent from '../components/AdComponent';
 import SearchBar from '../components/SearchBar';
+import ScrollButton from '../components/ScrollComponent';
 import "../assets/app.css"
 
 export default function Home() {
@@ -20,6 +21,7 @@ export default function Home() {
         }
         setTag(tagText)
     }
+
     const fetchArticles = async ({ pageParam = 0 }) => {
         const response = await fetch(process.env.REACT_APP_API_KEY.concat("articles/" + pageParam + "/" + tagWord + "/" + searchQuery));
         const results = await response.json();
@@ -44,14 +46,15 @@ export default function Home() {
             leftColumm={<br></br>}
             rightColumn={
                 <>
+                    <div id="target2"></div>
                     <Tags handleTag={handleTag} tag={tagWord} />
                     <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
                     {isLoading ? (
                         <div class='loader-div'><CircularProgress color='secondary' /></div>
                     ) : isError ? (
-                        <Alert severity="warning">Loading error, please try again!</Alert>
+                        <Alert severity="warning">Loading error, please try again or amed search query!</Alert>
                     ) : (
-                        <InfiniteScroll style={{ height: '100%' }} hasMore={hasNextPage} loadMore={fetchNextPage}>
+                        <InfiniteScroll id="target" useWindow={false} hasMore={hasNextPage} loadMore={fetchNextPage}>
                             {data.pages.map((page) =>
                                 page.results.map((card, index) => <NewsCard
                                     title={card.Title}
@@ -64,10 +67,11 @@ export default function Home() {
                                 />))}
                         </InfiniteScroll>
                     )}
+                    <ScrollButton id="target" />
                     <AdsComponent />
                 </>
             }
-            sideMenu={<br></br>}
+            sideMenu={<></>}
         />
     </>)
 }
