@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Avatar, Link, Card, CardHeader, CardContent, IconButton, Typography, Chip, Stack } from '@mui/material';
-import Share from '@mui/icons-material/Share';
+// import Share from '@mui/icons-material/Share';
 import { Tooltip } from '@mui/material';
 import IJ from "../assets/insurancejournal.png"
 import IA from "../assets/ia.jpeg"
