@@ -1,7 +1,7 @@
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 
-const tagWords = ["All", "Property", "Casualty", "Marine", "Energy", "Reinsurance", "Motor", "Aviation", "Legislation", "Climate", "People"]
+const tagWords = ["All", "Property", "Casualty", "Marine", "Energy", "Reinsurance", "Motor", "Aviation", "Legislation", "M&A", "Climate", "People"]
 
 
 export default function Tags(props) {
