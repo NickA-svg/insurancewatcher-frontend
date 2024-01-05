@@ -8,6 +8,7 @@ import Tags from '../components/TitleTags';
 // import AdsComponent from '../components/AdComponent';
 import SearchBar from '../components/SearchBar';
 import ScrollButton from '../components/ScrollComponent';
+import Responses from '../services/GetResponse';
 import "../assets/app.css"
 
 export default function Home() {
@@ -36,7 +37,7 @@ export default function Home() {
         fetchNextPage
     } = useInfiniteQuery(["articles", tagWord, searchQuery], fetchArticles, {
         getNextPageParam: (lastPage, pages) => {
-            if (lastPage.nextPage < lastPage.totalPages) return lastPage.nextPage;
+            if (lastPage.nextPage < lastPage.totalPages && lastPage.results.length === 10) return lastPage.nextPage;
             return undefined;
         }
     });
@@ -49,8 +50,9 @@ export default function Home() {
                     <div id="target2"></div>
                     <Tags handleTag={handleTag} tag={tagWord} />
                     <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+                    <Responses root={'chart_data'} tag={tagWord} search={searchQuery} />
                     {isLoading ? (
-                        <div class='loader-div'><CircularProgress color='secondary' /></div>
+                        <div className='loader-div'><CircularProgress color='secondary' /></div>
                     ) : isError ? (
                         <Alert severity="warning">Loading error, please try again or amend search query!</Alert>
                     ) : (

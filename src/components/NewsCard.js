@@ -33,7 +33,7 @@ export default function NewsCard(props) {
 
     return (
         <div className="card-div">
-            <Link overlay href={props.url} target="_blank" style={{ textDecoration: 'none' }}>
+            <Link href={props.url} target="_blank" style={{ textDecoration: 'none' }}>
                 <Card sx={{ minWidth: 275, padding: '5px', margin: "10px" }} >
                     <CardHeader
                         avatar={

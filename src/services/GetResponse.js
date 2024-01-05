@@ -1,34 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import NewsCard from '../components/NewsCard'
+import AxisWithComposition from '../components/ChartComponent';
 
 const ResponseContext = React.createContext({
     repsonse: [], fetchResponse: () => { }
 })
 
 export default function Responses(props) {
-    const [responses, setResponses] = useState([])
+    const [responses, setResponses] = useState({
+        'xAxis': [''],
+        'sentiment': [],
+        'trend': [],
+        'stock': [],
+    })
+    const [isLoading, setLoading] = useState(true)
+
     const fetchResponse = async () => {
-        const response = await fetch(process.env.REACT_APP_API_KEY.concat(props.root + "/" + props.page + "/" + props.tag))
+        setLoading(true)
+        const response = await fetch(process.env.REACT_APP_API_KEY.concat(props.root + "/" + props.tag + "/" + props.search))
         const message = await response.json()
         setResponses(message)
+        setLoading(false)
     }
     useEffect(() => {
         fetchResponse()
         // eslint-disable-next-line
-    }, [props.page, props.tag])
+    }, [props.tag, props.search])
     return (
         <ResponseContext.Provider value={{ responses, fetchResponse }}>
-            {responses.map((card, index) =>
-                <NewsCard
-                    title={card.Title}
-                    date={card.YearMonthDay}
-                    summary={card.Summary}
-                    url={card.Link}
-                    tags={card.Tags}
-                    searchTag={props.tag}
-                    key={index}
-                />
-            )}
+            {<AxisWithComposition isLoading={isLoading} tagSearch={props.tag} xAxis={responses.xAxis} Sentiment={responses.sentiment} Trend={responses.trend} Stock={responses.stock} />}
         </ResponseContext.Provider>
     )
 }
