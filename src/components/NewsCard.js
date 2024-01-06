@@ -12,6 +12,7 @@ import TI from "../assets/TheInsurer.png"
 import AR from "../assets/artemis.jpeg"
 import FT from "../assets/ft.png"
 import AT from "../assets/atlas.png"
+import IB from "../assets/InsBiz.gif"
 
 const links = {
     "www.insurancejournal.com": { "name": "IJ", "color": "#af231c", "source": IJ },
@@ -23,7 +24,8 @@ const links = {
     "www.artemis.bm": { "name": "Ar", "color": "#121942", "source": AR },
     "www.ft.com": { "name": "FT", "color": "#fcd0b1", "source": FT },
     "www.claimsjournal.com": { "name": "CJ", "color": "#172a7c", "source": CJ },
-    "www.atlas-mag.net": { "name": "AT", "color": "#de201e", "source": AT }
+    "www.atlas-mag.net": { "name": "AT", "color": "#de201e", "source": AT },
+    "www.insurancebusinessmag.com": { "name": "IB", "color": "#012d6b", "source": IB }
 }
 
 export default function NewsCard(props) {
