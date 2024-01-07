@@ -8,38 +8,13 @@ import { ChartsYAxis } from '@mui/x-charts/ChartsYAxis';
 import { axisClasses } from '@mui/x-charts/ChartsAxis';
 import { Card } from '@mui/material';
 import { CircularProgress, Box, Typography } from '@mui/material';
+import useWindowDimensions from './SizerComponent';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
 }).format;
 
-function getWindowDimensions() {
-    let { innerWidth: width, innerHeight: height } = window;
-    if (width < 950) {
-        width = 900
-    }
-    else { width = width * 0.7 }
-    return {
-        width,
-        height
-    };
-}
-
-function useWindowDimensions() {
-    const [windowDimensions, setWindowDimensions] = React.useState(getWindowDimensions());
-
-    React.useEffect(() => {
-        function handleResize() {
-            setWindowDimensions(getWindowDimensions());
-        }
-
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    return windowDimensions;
-}
 
 export default function AxisWithComposition(props) {
     // eslint-disable-next-line no-unused-vars
