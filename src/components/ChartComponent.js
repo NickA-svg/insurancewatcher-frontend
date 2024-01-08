@@ -54,7 +54,7 @@ export default function AxisWithComposition(props) {
                                 data: props.Stock,
                                 label: "S&P 500 Insurance",
                                 curve: 'linear',
-                                color: '#d100ff',
+                                color: '#1d486a',
                                 valueFormatter: currencyFormatter
                             },
                             {
@@ -63,7 +63,7 @@ export default function AxisWithComposition(props) {
                                 yAxisKey: 'sentiment',
                                 data: props.Sentiment,
                                 connectNulls: true,
-                                color: '#00ffd1',
+                                color: '#29b3ad',
                                 label: `${props.tagSearch} Market Sentiment`,
                             },
                             {

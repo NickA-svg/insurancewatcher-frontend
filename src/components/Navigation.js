@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 import ButtonMailto from './MailComponent';
 // import IconButton from '@mui/material/IconButton';
 // import MenuIcon from '@mui/icons-material/Menu';
-import logo from '../assets/favicon.png';
+import logo from '../assets/IWLogo.png';
 
 export default function NavigationBar() {
     return (
@@ -30,7 +30,7 @@ export default function NavigationBar() {
                         style={{ paddingRight: "10px", paddingBottom: "8px" }}
                     />
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        InsuranceWatcher
+
                     </Typography>
                     <ButtonMailto label={"Contact Us"} mailto={'insurancewatcher@outlook.com'} />
                 </Toolbar>
