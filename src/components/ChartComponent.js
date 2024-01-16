@@ -30,79 +30,82 @@ export default function AxisWithComposition(props) {
                             <CircularProgress sx={{ margin: 5 }} color='secondary' />
                         </Box>
                     </div> :
-                    <ResponsiveChartContainer
-                        width={width}
-                        xAxis={[
-                            {
-                                scaleType: 'band',
-                                data: props.xAxis,
-                                id: 'quarters',
-                                hideTooltip: false,
-                                tickLabelStyle: {
-                                    angle: 45,
-                                    textAnchor: 'start',
+                    <>
+                        <Typography variant='h6' sx={{ marginLeft: 2 }}>Correlation between Market Sentiment & Insurance Stock Price</Typography>
+                        <ResponsiveChartContainer
+                            width={width}
+                            xAxis={[
+                                {
+                                    scaleType: 'band',
+                                    data: props.xAxis,
+                                    id: 'quarters',
+                                    hideTooltip: false,
+                                    tickLabelStyle: {
+                                        angle: 45,
+                                        textAnchor: 'start',
+                                    },
+                                    tickLabelInterval: (value, index) => index % 2 === 0
                                 },
-                                tickLabelInterval: (value, index) => index % 2 === 0
-                            },
-                        ]}
-                        yAxis={[{ id: 'sentiment' }, { id: 'stock' }]}
-                        series={[
-                            {
-                                type: 'line',
-                                id: 'stock',
-                                yAxisKey: 'stock',
-                                data: props.Stock,
-                                label: "S&P 500 Insurance",
-                                curve: 'linear',
-                                color: '#1d486a',
-                                valueFormatter: currencyFormatter
-                            },
-                            {
-                                type: 'line',
-                                id: 'sentiment',
-                                yAxisKey: 'sentiment',
-                                data: props.Sentiment,
-                                connectNulls: true,
-                                color: '#29b3ad',
-                                label: `${props.tagSearch} Market Sentiment`,
-                            },
-                            {
-                                type: 'line',
-                                id: 'trend',
-                                yAxisKey: 'sentiment',
-                                data: props.Trend,
-                                connectNulls: true,
-                                showMark: false,
-                                color: '#ff002e',
-                                label: 'Sentiment Trend'
-                            },
-                        ]}
-                        height={500}
-                        margin={{ left: 70, right: 70, bottom: 140 }}
-                        sx={{
-                            [`.${axisClasses.left} .${axisClasses.label}`]: {
-                                transform: 'translate(-25px, 0)',
-                            },
-                            [`.${axisClasses.right} .${axisClasses.tickLabel}`]: {
-                                display: 'None'
-                            },
-                            [`.${axisClasses.right} .${axisClasses.label}`]: {
-                                transform: 'translate(5px, 0)',
-                            },
-                        }}
-                    >
-                        <LinePlot slotProps={{
-                            legend: {
-                                direction: 'row',
-                            },
-                        }} />
-                        <MarkPlot />
-                        <ChartsXAxis axisId="quarters" />
-                        <ChartsYAxis axisId="sentiment" label="Sentiment Index" position="right" />
-                        <ChartsYAxis axisId="stock" label="Stock Price ($USD)" />
-                        <ChartsLegend direction="row" position={{ vertical: 'bottom', horizontal: 'middle' }} />
-                        <ChartsTooltip scaleType={'band'} />
-                    </ResponsiveChartContainer>
+                            ]}
+                            yAxis={[{ id: 'sentiment' }, { id: 'stock' }]}
+                            series={[
+                                {
+                                    type: 'line',
+                                    id: 'stock',
+                                    yAxisKey: 'stock',
+                                    data: props.Stock,
+                                    label: "S&P 500 Insurance",
+                                    curve: 'linear',
+                                    color: '#1d486a',
+                                    valueFormatter: currencyFormatter
+                                },
+                                {
+                                    type: 'line',
+                                    id: 'sentiment',
+                                    yAxisKey: 'sentiment',
+                                    data: props.Sentiment,
+                                    connectNulls: true,
+                                    color: '#29b3ad',
+                                    label: `${props.tagSearch} Market Sentiment`,
+                                },
+                                {
+                                    type: 'line',
+                                    id: 'trend',
+                                    yAxisKey: 'sentiment',
+                                    data: props.Trend,
+                                    connectNulls: true,
+                                    showMark: false,
+                                    color: '#ff002e',
+                                    label: 'Sentiment Trend'
+                                },
+                            ]}
+                            height={500}
+                            margin={{ left: 70, right: 70, bottom: 140 }}
+                            sx={{
+                                [`.${axisClasses.left} .${axisClasses.label}`]: {
+                                    transform: 'translate(-25px, 0)',
+                                },
+                                [`.${axisClasses.right} .${axisClasses.tickLabel}`]: {
+                                    display: 'None'
+                                },
+                                [`.${axisClasses.right} .${axisClasses.label}`]: {
+                                    transform: 'translate(5px, 0)',
+                                },
+                            }}
+                        >
+                            <LinePlot slotProps={{
+                                legend: {
+                                    direction: 'row',
+                                },
+                            }} />
+                            <MarkPlot />
+                            <ChartsXAxis axisId="quarters" />
+                            <ChartsYAxis axisId="sentiment" label="Sentiment Index" position="right" />
+                            <ChartsYAxis axisId="stock" label="Stock Price ($USD)" />
+                            <ChartsLegend direction="row" position={{ vertical: 'bottom', horizontal: 'middle' }} />
+                            <ChartsTooltip scaleType={'band'} />
+                        </ResponsiveChartContainer>
+                    </>
                 }
             </Card>
         </div >

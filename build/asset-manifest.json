@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.2bbb462a.css",
-    "main.js": "/static/js/main.6a73c8de.js",
+    "main.js": "/static/js/main.64f2d8e7.js",
     "static/js/787.9e9f4ffd.chunk.js": "/static/js/787.9e9f4ffd.chunk.js",
     "static/media/insurancejournal.png": "/static/media/insurancejournal.737a296cb8d71dd86575.png",
     "static/media/InsBiz.gif": "/static/media/InsBiz.d7013d5c050d35d5af27.gif",
@@ -10,11 +10,11 @@
     "static/media/ia.jpeg": "/static/media/ia.0493c3ed2251653e7b1f.jpeg",
     "index.html": "/index.html",
     "main.2bbb462a.css.map": "/static/css/main.2bbb462a.css.map",
-    "main.6a73c8de.js.map": "/static/js/main.6a73c8de.js.map",
+    "main.64f2d8e7.js.map": "/static/js/main.64f2d8e7.js.map",
     "787.9e9f4ffd.chunk.js.map": "/static/js/787.9e9f4ffd.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.2bbb462a.css",
-    "static/js/main.6a73c8de.js"
+    "static/js/main.64f2d8e7.js"
   ]
 }
