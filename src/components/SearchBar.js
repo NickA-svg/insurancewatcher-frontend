@@ -1,14 +1,15 @@
 import React from "react";
-import { OutlinedInput } from "@mui/material";
+import { IconButton, InputAdornment, OutlinedInput } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { IconButton } from "@mui/material";
 import ClearIcon from '@mui/icons-material/Clear';
 
-export default function SearchBar({ setSearchQuery, searchQuery }) {
-    const [value, setValue] = React.useState()
+export default function SearchBar({ setSearchQuery }) {
+    const [value, setValue] = React.useState("")
 
-    function handleChange(search) {
-        setValue(search.target.value)
+    function submit(e) {
+        e.preventDefault();
+        const trimmed = value.trim();
+        setSearchQuery(trimmed === "" ? "All" : trimmed.replaceAll("/", " ").replaceAll(" ", "+"));
     }
 
     function handleClear() {
@@ -17,41 +18,21 @@ export default function SearchBar({ setSearchQuery, searchQuery }) {
     }
 
     return (
-        <form className="search-id">
+        <form onSubmit={submit} role="search">
             <OutlinedInput
-                id="search-bar"
-                className="search-bar"
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                        if (e.target.value === "") {
-                            setSearchQuery("All")
-                            setValue("")
-                        }
-                        else {
-                            const search = e.target.value.replaceAll(" ", "+")
-                            setValue(e.target.value)
-                            setSearchQuery(search)
-                        }
-                        e.preventDefault();
-                    }
-                }}
-                onChange={handleChange}
-                variant="outlined"
-                value={value}
-                placeholder="Search articles for..."
+                fullWidth
                 size="small"
-                sx={{
-                    width: "98%",
-                    marginLeft: 1,
-                    "--Input-radius": "10px",
-                    "--Input-gap": "15px",
-                }}
-                startAdornment={<SearchIcon style={{ fill: "#00ffd1", paddingRight: '5px', borderRadius: '20px' }} />}
-                endAdornment={
-                    <IconButton onClick={handleClear}>
-                        <ClearIcon />
-                    </IconButton>
-                }
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder="Search headlines, e.g. Lloyd's, hurricane, D&O…"
+                inputProps={{ 'aria-label': 'Search articles' }}
+                sx={{ bgcolor: '#fff' }}
+                startAdornment={<InputAdornment position="start"><SearchIcon sx={{ color: 'text.secondary' }} /></InputAdornment>}
+                endAdornment={value ? (
+                    <InputAdornment position="end">
+                        <IconButton aria-label="Clear search" onClick={handleClear} edge="end" size="small"><ClearIcon fontSize="small" /></IconButton>
+                    </InputAdornment>
+                ) : null}
             />
         </form>
     );

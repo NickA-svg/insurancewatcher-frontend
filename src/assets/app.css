@@ -1,184 +1,69 @@
-.SplitContent {
-    -webkit-box-sizing: border-box;
-    /* Safari/Chrome, other WebKit */
-    -moz-box-sizing: border-box;
-    /* Firefox, other Gecko */
-    box-sizing: border-box;
-    /* Opera/IE 8+ */
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    height: 100%;
-    background-color: white;
-    align-items: flex-start;
-    overflow-y: hidden;
-    overflow-x: hidden;
+.page {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 16px 48px;
 }
 
-@media only screen and (max-width: 480px) {
-    .SplitContentLeft {
-        -webkit-box-sizing: border-box;
-        /* Safari/Chrome, other WebKit */
-        -moz-box-sizing: border-box;
-        /* Firefox, other Gecko */
-        box-sizing: border-box;
-        /* Opera/IE 8+ */
-        display: none;
-    }
-}
-
-@media only screen and (min-width: 480px) {
-    .SplitContentLeft {
-        -webkit-box-sizing: border-box;
-        /* Safari/Chrome, other WebKit */
-        -moz-box-sizing: border-box;
-        /* Firefox, other Gecko */
-        box-sizing: border-box;
-        /* Opera/IE 8+ */
-        width: 12.5%;
-        height: 100vh;
-        border-right: #00ffd1 solid 1px;
-        overflow: auto;
-        background-color: lightgrey;
-        padding: 24px;
-    }
-}
-
-.SplitContentRight {
-    -webkit-box-sizing: border-box;
-    /* Safari/Chrome, other WebKit */
-    -moz-box-sizing: border-box;
-    /* Firefox, other Gecko */
-    box-sizing: border-box;
-    /* Opera/IE 8+ */
-    width: 100%;
-    height: 100vh;
-    overflow: auto;
-    padding: 24px;
-    background-color: #f9f9f9;
-    position: relative;
-}
-
-@media only screen and (max-width: 480px) {
-    .SplitContentSideMenu {
-        -webkit-box-sizing: border-box;
-        /* Safari/Chrome, other WebKit */
-        -moz-box-sizing: border-box;
-        /* Firefox, other Gecko */
-        box-sizing: border-box;
-        /* Opera/IE 8+ */
-        display: none;
-    }
-}
-
-@media only screen and (min-width: 480px) {
-    .SplitContentSideMenu {
-        -webkit-box-sizing: border-box;
-        /* Safari/Chrome, other WebKit */
-        -moz-box-sizing: border-box;
-        /* Firefox, other Gecko */
-        box-sizing: border-box;
-        /* Opera/IE 8+ */
-        width: 12.5%;
-        height: 100vh;
-        overflow: auto;
-        border-left: #00ffd1 solid 1px;
-        background-color: lightgrey;
-        padding: 24px;
-    }
-}
-
-
-.FiltersContainer {
-    -webkit-box-sizing: border-box;
-    /* Safari/Chrome, other WebKit */
-    -moz-box-sizing: border-box;
-    /* Firefox, other Gecko */
-    box-sizing: border-box;
-    /* Opera/IE 8+ */
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    flex-wrap: nowrap;
-}
-
-.scroller {
-    position: fixed !important;
-    bottom: 0;
-    right: 0;
-    z-index: 99 !important;
-}
-
-div.MuiInputBase-root {
-    border-radius: 5px !important;
-    border-color: #00ffd1 !important;
-}
-
-.basic-multi-select {
+.filters {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(244, 246, 248, 0.96);
+    backdrop-filter: blur(6px);
+    padding: 12px 0 10px;
     margin-bottom: 8px;
-    border-top: 0px;
-    border-bottom-left-radius: 0px !important;
-    border-bottom-right-radius: 0px !important;
-    width: 100%;
 }
 
-.basic-single {
-    margin-bottom: 0px;
-    border-top: 0px;
-    border-bottom-left-radius: 0px !important;
-    border-bottom-right-radius: 0px !important;
-    width: 100%;
+.tag-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: none;
 }
 
-.CreateAdjustmentCard {
-    padding-top: 0px;
+.tag-row::-webkit-scrollbar { display: none; }
+
+.article-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    margin-bottom: 12px;
 }
 
-.btn-div {
-    margin-top: 10px;
-    margin-left: 100px;
+.article-card .MuiCard-root {
+    transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
 }
 
-.card-div {
-    min-width: 275;
-    margin-top: 2.5px;
-    margin-bottom: 7.5px;
+.article-card:hover .MuiCard-root,
+.article-card:focus-visible .MuiCard-root {
+    border-color: #22b8b1;
+    box-shadow: 0 4px 16px rgba(18, 45, 66, 0.08);
+}
+
+.clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .loader-div {
-    padding: 5px;
+    padding: 24px;
     display: flex;
     justify-content: center;
 }
 
-.article-nav {
-    padding: 5px;
-    display: flex;
-    justify-content: center;
+.scroller {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 20;
 }
 
-.title-tags-div {
-    min-width: 275;
-    margin-top: 2.5px;
-    margin-bottom: 7.5px;
-    padding: 10px;
-    overflow-x: scroll;
-}
-
-.card-btns {
-    padding: 0.5%;
-}
-
-.select__multi-value__label {
-    background-color: whitesmoke;
-}
-
-.select__multi-value__remove {
-    background-color: whitesmoke;
-}
-
-.select__multi-value__label-negated {
-    background-color: lightcoral;
+.site-footer {
+    text-align: center;
+    color: #5b6b78;
+    font-size: 13px;
+    padding: 24px 16px 40px;
 }

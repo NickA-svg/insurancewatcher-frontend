@@ -1,44 +1,27 @@
 import React from 'react';
-import IconButton from '@mui/material/IconButton';
+import { Fab, Zoom } from '@mui/material';
 import NorthIcon from '@mui/icons-material/North';
 
-export default function ScrollButton(props) {
+export default function ScrollButton() {
     const [visible, setVisible] = React.useState(false);
 
-    const toggleVisible = () => {
-        if (
-            document.getElementById("SplitContentRight").scrollTop > 500 ||
-            document.documentElement.scrollTop > 500
-        ) {
-            setVisible(true);
-        } else {
-            setVisible(false);
-        }
-    };
-
     React.useEffect(() => {
-        // Listen for Scrolling Event
-        document.getElementById("SplitContentRight").addEventListener("scroll", toggleVisible, false);
-        return () => {
-            document.getElementById("SplitContentRight").removeEventListener("scroll", toggleVisible, false);
-        }
+        const onScroll = () => setVisible(window.scrollY > 600);
+        window.addEventListener("scroll", onScroll, { passive: true });
+        return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
-
-
-    function scrollToTop() {
-        const div = document.getElementById(props.id);
-        const div2 = document.getElementById("target2")
-        div.scrollIntoView();
-        div2.scrollIntoView();
-    }
-
     return (
-        <footer>
-            <IconButton id="scroller" className={visible ? "scroller" : null} onClick={scrollToTop}>
-                <NorthIcon sx={{ border: 'solid', bgcolor: '#00ffd1', borderColor: '#00ffd1', borderRadius: '100px', opacity: '70%' }} color='#000' />
-            </IconButton>
-        </footer>
+        <Zoom in={visible}>
+            <Fab
+                className="scroller"
+                color="secondary"
+                size="medium"
+                aria-label="Back to top"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
+                <NorthIcon />
+            </Fab>
+        </Zoom>
     )
-
-};
+}

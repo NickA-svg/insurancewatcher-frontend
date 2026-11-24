@@ -5,109 +5,73 @@ import { ChartsTooltip } from '@mui/x-charts/ChartsTooltip';
 import { ChartsLegend } from '@mui/x-charts/ChartsLegend';
 import { ChartsXAxis } from '@mui/x-charts/ChartsXAxis';
 import { ChartsYAxis } from '@mui/x-charts/ChartsYAxis';
-import { axisClasses } from '@mui/x-charts/ChartsAxis';
-import { Card } from '@mui/material';
-import { CircularProgress, Box, Typography } from '@mui/material';
-import useWindowDimensions from './SizerComponent';
+import { Box, Button, Card, CircularProgress, Collapse, Stack, Typography, useMediaQuery } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-}).format;
+const currencyFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format;
+const sentimentFormatter = (v) => (v === null || v === undefined ? '–' : v.toFixed(3));
 
+export default function SentimentChart({ status, tag, data }) {
+    const isMobile = useMediaQuery('(max-width:600px)');
+    const [open, setOpen] = React.useState(!isMobile);
+    const hasSentiment = data && data.sentiment && data.sentiment.some((v) => v !== null);
+    const label = tag === 'All' ? 'Market' : tag;
 
-export default function AxisWithComposition(props) {
-    // eslint-disable-next-line no-unused-vars
-    const { width, height } = useWindowDimensions()
-    // props.xAxis.slice(Math.max(props.xAxis.length - dataLength, 0))
     return (
-        <div className='card-div'>
-            <Card sx={{ minWidth: 275, padding: '5px', margin: "10px", backgroundColor: "#fff", overflowX: 'scroll' }}>
-                {props.isLoading ?
-                    <div className='loader-div'>
-                        <Box display='flex' justifyContent='center'>
-                            <Typography position='absolute' sx={{ marginTop: 5, paddingTop: 7 }}>Loading Sentiment Tracker...</Typography>
-                            <CircularProgress sx={{ margin: 5 }} color='secondary' />
-                        </Box>
-                    </div> :
-                    <>
-                        <Typography variant='h6' sx={{ marginLeft: 2 }}>Correlation between Market Sentiment & Insurance Stock Price</Typography>
+        <Card sx={{ p: { xs: 2, sm: 2.5 }, mb: 2 }}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+                <Box>
+                    <Typography variant="subtitle1">{label} sentiment tracker</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        Monthly average tone of {label === 'Market' ? 'property, casualty and reinsurance' : label.toLowerCase()} headlines against the S&amp;P 500 Insurance index
+                    </Typography>
+                </Box>
+                <Button
+                    size="small"
+                    color="primary"
+                    onClick={() => setOpen(!open)}
+                    endIcon={open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                    sx={{ flexShrink: 0 }}
+                >
+                    {open ? 'Hide' : 'Show'}
+                </Button>
+            </Stack>
+            <Collapse in={open} unmountOnExit>
+                <Box sx={{ height: isMobile ? 280 : 340, mt: 1 }}>
+                    {status === 'loading' && <div className="loader-div"><CircularProgress color="secondary" /></div>}
+                    {status === 'error' && <Typography color="text.secondary" sx={{ p: 3 }}>The chart couldn't load. Please try again shortly.</Typography>}
+                    {status === 'ready' && !hasSentiment && (
+                        <Typography color="text.secondary" sx={{ p: 3 }}>Not enough articles to chart this filter yet.</Typography>
+                    )}
+                    {status === 'ready' && hasSentiment && (
                         <ResponsiveChartContainer
-                            width={width}
-                            xAxis={[
-                                {
-                                    scaleType: 'band',
-                                    data: props.xAxis,
-                                    id: 'quarters',
-                                    hideTooltip: false,
-                                    tickLabelStyle: {
-                                        angle: 45,
-                                        textAnchor: 'start',
-                                    },
-                                    tickLabelInterval: (value, index) => index % 2 === 0
-                                },
-                            ]}
+                            xAxis={[{
+                                scaleType: 'band',
+                                data: data.xAxis,
+                                id: 'months',
+                                tickLabelStyle: { angle: 45, textAnchor: 'start', fontSize: 11 },
+                                tickLabelInterval: (value, index) => index % (isMobile ? 6 : 3) === 0,
+                            }]}
                             yAxis={[{ id: 'sentiment' }, { id: 'stock' }]}
                             series={[
-                                {
-                                    type: 'line',
-                                    id: 'stock',
-                                    yAxisKey: 'stock',
-                                    data: props.Stock,
-                                    label: "S&P 500 Insurance",
-                                    curve: 'linear',
-                                    color: '#1d486a',
-                                    valueFormatter: currencyFormatter
-                                },
-                                {
-                                    type: 'line',
-                                    id: 'sentiment',
-                                    yAxisKey: 'sentiment',
-                                    data: props.Sentiment,
-                                    connectNulls: true,
-                                    color: '#29b3ad',
-                                    label: `${props.tagSearch} Market Sentiment`,
-                                },
-                                {
-                                    type: 'line',
-                                    id: 'trend',
-                                    yAxisKey: 'sentiment',
-                                    data: props.Trend,
-                                    connectNulls: true,
-                                    showMark: false,
-                                    color: '#ff002e',
-                                    label: 'Sentiment Trend'
-                                },
+                                { type: 'line', id: 'stock', yAxisKey: 'stock', data: data.stock, label: 'S&P 500 Insurance', curve: 'linear', color: '#9fb3c2', showMark: false, valueFormatter: currencyFormatter },
+                                { type: 'line', id: 'sentiment', yAxisKey: 'sentiment', data: data.sentiment, connectNulls: true, color: '#22b8b1', label: `${label} sentiment`, valueFormatter: sentimentFormatter },
+                                { type: 'line', id: 'trend', yAxisKey: 'sentiment', data: data.trend, connectNulls: true, showMark: false, color: '#122d42', label: 'Trend', valueFormatter: sentimentFormatter },
                             ]}
-                            height={500}
-                            margin={{ left: 70, right: 70, bottom: 140 }}
-                            sx={{
-                                [`.${axisClasses.left} .${axisClasses.label}`]: {
-                                    transform: 'translate(-25px, 0)',
-                                },
-                                [`.${axisClasses.right} .${axisClasses.tickLabel}`]: {
-                                    display: 'None'
-                                },
-                                [`.${axisClasses.right} .${axisClasses.label}`]: {
-                                    transform: 'translate(5px, 0)',
-                                },
-                            }}
+                            margin={{ left: isMobile ? 48 : 64, right: isMobile ? 40 : 56, top: 40, bottom: 64 }}
                         >
-                            <LinePlot slotProps={{
-                                legend: {
-                                    direction: 'row',
-                                },
-                            }} />
+                            <LinePlot />
                             <MarkPlot />
-                            <ChartsXAxis axisId="quarters" />
-                            <ChartsYAxis axisId="sentiment" label="Sentiment Index" position="right" />
-                            <ChartsYAxis axisId="stock" label="Stock Price ($USD)" />
-                            <ChartsLegend direction="row" position={{ vertical: 'bottom', horizontal: 'middle' }} />
-                            <ChartsTooltip scaleType={'band'} />
+                            <ChartsXAxis axisId="months" />
+                            <ChartsYAxis axisId="stock" position="left" />
+                            <ChartsYAxis axisId="sentiment" position="right" />
+                            <ChartsLegend direction="row" position={{ vertical: 'top', horizontal: 'middle' }} itemMarkWidth={12} itemMarkHeight={3} labelStyle={{ fontSize: 12 }} />
+                            <ChartsTooltip trigger="axis" />
                         </ResponsiveChartContainer>
-                    </>
-                }
-            </Card>
-        </div >
+                    )}
+                </Box>
+            </Collapse>
+        </Card>
     );
 }

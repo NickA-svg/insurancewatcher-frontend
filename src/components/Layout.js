@@ -4,7 +4,10 @@ const Layout = ({ children }) => {
     return (
         <>
             <NavigationBar />
-            <div > {children} </div>
+            <main>{children}</main>
+            <footer className="site-footer">
+                InsuranceWatcher collects headlines from public RSS feeds. Every article links to its original publisher.
+            </footer>
         </>
     )
 }

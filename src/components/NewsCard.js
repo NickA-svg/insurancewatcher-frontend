@@ -1,7 +1,5 @@
 import * as React from 'react';
-import { Avatar, Link, Card, CardHeader, CardContent, IconButton, Typography, Chip, Stack } from '@mui/material';
-// import Share from '@mui/icons-material/Share';
-import { Tooltip } from '@mui/material';
+import { Avatar, Box, Card, Chip, Stack, Typography } from '@mui/material';
 import IJ from "../assets/insurancejournal.png"
 import IA from "../assets/ia.jpeg"
 import II from "../assets/theinsuranceinsider.jpeg"
@@ -14,64 +12,75 @@ import FT from "../assets/ft.png"
 import AT from "../assets/atlas.png"
 import IB from "../assets/InsBiz.gif"
 
-const links = {
-    "www.insurancejournal.com": { "name": "IJ", "color": "#af231c", "source": IJ },
-    "www.insuranceage.co.uk": { "name": "IA", "color": "#44b8ae", "source": IA },
-    "www.reinsurancene.ws": { "name": "Re", "color": "#007aff", "source": RN },
-    "www.insuranceinsider.com": { "name": "II", "color": "#e30513", "source": II },
-    "www.postonline.co.uk": { "name": "PO", "color": "#335fc8", "source": IP },
-    "www.theinsurer.com": { "name": "TI", "color": "#3b3b53", "source": TI },
-    "www.artemis.bm": { "name": "Ar", "color": "#121942", "source": AR },
-    "www.ft.com": { "name": "FT", "color": "#fcd0b1", "source": FT },
-    "www.claimsjournal.com": { "name": "CJ", "color": "#172a7c", "source": CJ },
-    "www.atlas-mag.net": { "name": "AT", "color": "#de201e", "source": AT },
-    "www.insurancebusinessmag.com": { "name": "IB", "color": "#012d6b", "source": IB }
+const sources = {
+    "www.insurancejournal.com": { name: "Insurance Journal", color: "#af231c", logo: IJ },
+    "www.insuranceage.co.uk": { name: "Insurance Age", color: "#44b8ae", logo: IA },
+    "www.reinsurancene.ws": { name: "Reinsurance News", color: "#007aff", logo: RN },
+    "www.insuranceinsider.com": { name: "Insurance Insider", color: "#e30513", logo: II },
+    "www.postonline.co.uk": { name: "Insurance Post", color: "#335fc8", logo: IP },
+    "www.theinsurer.com": { name: "The Insurer", color: "#3b3b53", logo: TI },
+    "www.artemis.bm": { name: "Artemis", color: "#121942", logo: AR },
+    "www.ft.com": { name: "Financial Times", color: "#fcd0b1", logo: FT },
+    "www.claimsjournal.com": { name: "Claims Journal", color: "#172a7c", logo: CJ },
+    "www.atlas-mag.net": { name: "Atlas Magazine", color: "#de201e", logo: AT },
+    "www.insurancebusinessmag.com": { name: "Insurance Business", color: "#012d6b", logo: IB },
 }
 
-export default function NewsCard(props) {
-    const base_url = props.url.split("/")[2]
-    const av_color = links[base_url]["color"]
-    const source = links[base_url]["source"]
+function sourceFor(url) {
+    let host = "";
+    try { host = new URL(url).hostname; } catch (e) { host = ""; }
+    return sources[host] || { name: host.replace(/^www\./, "") || "Source", color: "#5b6b78", logo: null };
+}
+
+function formatDate(ymd) {
+    if (!ymd) return "";
+    const d = new Date(`${ymd}T00:00:00`);
+    if (isNaN(d)) return ymd;
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+export default function NewsCard({ title, date, summary, url, tags, searchTag }) {
+    const source = sourceFor(url);
+    const tagList = (tags || "").split(', ').filter(Boolean);
+    const cleanSummary = (summary || "").trim();
+    const showSummary = cleanSummary && cleanSummary.toLowerCase() !== (title || "").trim().toLowerCase();
 
     return (
-        <div className="card-div">
-            <Link href={props.url} target="_blank" style={{ textDecoration: 'none' }}>
-                <Card sx={{ minWidth: 275, padding: '5px', margin: "10px" }} >
-                    <CardHeader
-                        avatar={
-                            <IconButton aria-label="settings" href={"https://" + base_url} target="_blank">
-                                <Tooltip title={base_url}>
-                                    <Avatar srcSet={source} sx={{ width: 80, height: 80, bgcolor: av_color }} aria-label="recipe" />
-                                </Tooltip>
-                            </IconButton>
-                        }
-                        title={<Typography variant='h5'>{props.title}</Typography>}
-                        subheader={props.date}
-                    />
-                    <CardContent orientation="horizontal">
-                        <div>
-                            <Typography level="body-sm">
-                                {props.summary}...
-                            </Typography>
-                        </div>
-                        <br></br>
-                        <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-                            {/* <Tooltip title="Continue reading...">
-                            <IconButton aria-label="settings" href={props.url} target="_blank">
-                                <Share />
-                            </IconButton>
-                        </Tooltip> */}
-                            {props.tags.split(', ').filter(item => item !== "").map((tag, index) =>
-                                <Chip
-                                    key={index}
-                                    label={tag}
-                                    color={tag === props.searchTag ? "secondary" : "primary"}
-                                    variant={tag === props.searchTag ? "filled" : 'filled'}
-                                    size='small' />)}
-                        </Stack>
-                    </CardContent>
-                </Card>
-            </Link>
-        </div>
+        <a className="article-card" href={url} target="_blank" rel="noopener noreferrer">
+            <Card sx={{ p: { xs: 2, sm: 2.5 } }}>
+                <Stack direction="row" spacing={1.25} alignItems="center" sx={{ mb: 1 }}>
+                    <Avatar
+                        src={source.logo || undefined}
+                        alt=""
+                        sx={{ width: 28, height: 28, bgcolor: source.color, fontSize: 12 }}
+                    >
+                        {source.name.charAt(0)}
+                    </Avatar>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>{source.name}</Typography>
+                    <Typography variant="body2" color="text.secondary">· {formatDate(date)}</Typography>
+                </Stack>
+                <Typography component="h2" sx={{ fontSize: { xs: '1.05rem', sm: '1.15rem' }, fontWeight: 600, lineHeight: 1.35, mb: showSummary ? 0.75 : 0 }}>
+                    {title}
+                </Typography>
+                {showSummary && (
+                    <Typography variant="body2" color="text.secondary" className="clamp-3" sx={{ lineHeight: 1.6 }}>
+                        {cleanSummary}
+                    </Typography>
+                )}
+                {tagList.length > 0 && (
+                    <Box sx={{ mt: 1.5, display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
+                        {tagList.map((tag) => (
+                            <Chip
+                                key={tag}
+                                label={tag}
+                                size="small"
+                                color={tag === searchTag ? "secondary" : "default"}
+                                variant={tag === searchTag ? "filled" : "outlined"}
+                            />
+                        ))}
+                    </Box>
+                )}
+            </Card>
+        </a>
     );
 }

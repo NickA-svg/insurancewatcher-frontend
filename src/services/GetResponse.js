@@ -1,33 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import AxisWithComposition from '../components/ChartComponent';
+import SentimentChart from '../components/ChartComponent';
 
-const ResponseContext = React.createContext({
-    repsonse: [], fetchResponse: () => { }
-})
+export default function Responses({ root, tag, search }) {
+    const [data, setData] = useState(null)
+    const [status, setStatus] = useState('loading')
 
-export default function Responses(props) {
-    const [responses, setResponses] = useState({
-        'xAxis': [''],
-        'sentiment': [],
-        'trend': [],
-        'stock': [],
-    })
-    const [isLoading, setLoading] = useState(true)
-
-    const fetchResponse = async () => {
-        setLoading(true)
-        const response = await fetch(process.env.REACT_APP_API_KEY.concat(props.root + "/" + props.tag + "/" + props.search))
-        const message = await response.json()
-        setResponses(message)
-        setLoading(false)
-    }
     useEffect(() => {
-        fetchResponse()
-        // eslint-disable-next-line
-    }, [props.tag, props.search])
-    return (
-        <ResponseContext.Provider value={{ responses, fetchResponse }}>
-            {<AxisWithComposition isLoading={isLoading} tagSearch={props.tag} xAxis={responses.xAxis} Sentiment={responses.sentiment} Trend={responses.trend} Stock={responses.stock} />}
-        </ResponseContext.Provider>
-    )
+        let cancelled = false;
+        setStatus('loading')
+        fetch(process.env.REACT_APP_API_KEY.concat(`${root}/${encodeURIComponent(tag)}/${encodeURIComponent(search)}`))
+            .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+            .then((message) => { if (!cancelled) { setData(message); setStatus('ready'); } })
+            .catch(() => { if (!cancelled) setStatus('error'); });
+        return () => { cancelled = true; };
+    }, [root, tag, search])
+
+    return <SentimentChart status={status} tag={tag} data={data} />
 }

@@ -1,22 +1,22 @@
 import Chip from '@mui/material/Chip';
-import Stack from '@mui/material/Stack';
 
-const tagWords = ["All", "Property", "Casualty", "Marine", "Energy", "Reinsurance", "Motor", "Aviation", "Legislation", "M&A", "Climate", "People"]
+export const tagWords = ["All", "Property", "Casualty", "Reinsurance", "Marine", "Energy", "Aviation", "Motor", "Climate", "Legislation", "M&A", "People"]
 
-
-export default function Tags(props) {
+export default function Tags({ tag, onSelect }) {
     return (
-        <div className="title-tags-div">
-            <Stack direction="row" spacing={1} useFlexGap >
-                {tagWords.map((tag, index) =>
-                    <Chip key={index}
-                        id={tag}
-                        size="medium"
-                        label={tag}
-                        onClick={(e) => { props.handleTag(e) }}
-                        color={props.tag === tag ? 'secondary' : 'primary'}
-                    />)}
-            </Stack>
+        <div className="tag-row" role="tablist" aria-label="Filter by line of business">
+            {tagWords.map((t) => (
+                <Chip
+                    key={t}
+                    label={t}
+                    role="tab"
+                    aria-selected={tag === t}
+                    onClick={() => onSelect(t)}
+                    color={tag === t ? 'secondary' : 'default'}
+                    variant={tag === t ? 'filled' : 'outlined'}
+                    sx={tag === t ? {} : { bgcolor: '#fff' }}
+                />
+            ))}
         </div>
     );
 }
