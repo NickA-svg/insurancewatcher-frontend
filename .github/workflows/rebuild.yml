@@ -12,4 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Cloudflare Pages build
-        run: curl -fsS -X POST "${{ secrets.CF_PAGES_DEPLOY_HOOK }}"
+        env:
+          HOOK: ${{ secrets.CF_PAGES_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then echo "::error::Secret CF_PAGES_DEPLOY_HOOK is not set (see the comment at the top of this file)"; exit 1; fi
+          curl -fsS -X POST "$HOOK"
