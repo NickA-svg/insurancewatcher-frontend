@@ -17,6 +17,7 @@ export default function NavigationBar({ path = '/' }) {
     const onCat = path.startsWith('/cat-monitor');
     const onLit = path.startsWith('/securities-class-actions');
     const onPerf = path.startsWith('/market-performance');
+    const onCyber = path.startsWith('/cyber-monitor');
     return (
         <AppBar position="static" color="primary" elevation={0}>
             <Toolbar sx={{ maxWidth: 952, width: '100%', mx: 'auto', gap: { xs: 1, sm: 2 }, minHeight: { xs: 60, sm: 68 } }}>
@@ -24,8 +25,9 @@ export default function NavigationBar({ path = '/' }) {
                     <Box component="img" src={logo} alt="InsuranceWatcher" sx={{ height: { xs: 28, sm: 36 } }} />
                 </Box>
                 <Box className="nav-links" sx={{ display: 'flex', gap: 0.5, ml: { xs: 0.5, sm: 2 }, minWidth: 0, overflowX: 'auto', flexShrink: 1 }}>
-                    <NavLink to="/" active={!onCat && !onLit && !onPerf}>News</NavLink>
+                    <NavLink to="/" active={!onCat && !onLit && !onPerf && !onCyber}>News</NavLink>
                     <NavLink to="/cat-monitor/" active={onCat}>Cat Monitor</NavLink>
+                    <NavLink to="/cyber-monitor/" active={onCyber}>Cyber</NavLink>
                     <NavLink to="/market-performance/" active={onPerf}>Performance</NavLink>
                     <NavLink to="/securities-class-actions/" active={onLit}>Class actions</NavLink>
                 </Box>

@@ -53,7 +53,7 @@ ${STYLE}</head>`)
     fs.writeFileSync(out, html);
 }
 
-const navHtml = `<nav><a href="/">All news</a>${TAGS.map((t) => `<a href="/news/${slug(t)}">${esc(t)}</a>`).join('')}<a href="/cat-monitor">Cat Monitor</a><a href="/market-performance/">Market performance</a><a href="/securities-class-actions/">Securities class actions</a></nav>`;
+const navHtml = `<nav><a href="/">All news</a>${TAGS.map((t) => `<a href="/news/${slug(t)}">${esc(t)}</a>`).join('')}<a href="/cat-monitor">Cat Monitor</a><a href="/cyber-monitor/">Cyber Monitor</a><a href="/market-performance/">Market performance</a><a href="/securities-class-actions/">Securities class actions</a></nav>`;
 const articleList = (rows) => `<ul>${rows.map((a) => `<li><a href="${esc(a.Link)}" rel="noopener">${esc(a.Title)}</a> <small>${esc(host(a.Link))} · ${fmtDate(a.YearMonthDay)}</small></li>`).join('')}</ul>`;
 
 async function main() {
@@ -116,6 +116,20 @@ async function main() {
             } catch (err) { console.warn(`prerender event ${e.slug}:`, err.message); }
         }
     } catch (e) { console.warn('prerender cat monitor:', e.message); }
+
+    // Cyber Monitor
+    try {
+        const cy = await getJSON('cyber');
+        const sys = cy.systemic.filter((x) => x.n365 > 0).map((x) => `<tr><td>${esc(x.label)}</td><td>${x.n90}</td><td>${x.n365}</td><td>${x.ransom365}</td></tr>`).join('');
+        const evs = cy.events.slice(0, 30).map((e) => `<li>${esc(e.label)} <small>${esc(e.kind)} · ${fmtDate(e.start_date)}${e.est_low ? ` · insured estimates ${sym(e.est_currency)}${bn(e.est_low)}–${bn(e.est_high)}bn` : ''}</small></li>`).join('');
+        const sec = cy.sec_latest.slice(0, 20).map((r) => `<li><a href="${esc(r.link)}" rel="noopener">${esc(r.company)}</a> <small>${esc(r.sector)} · ${fmtDate(r.filed)}</small></li>`).join('');
+        page({ urlPath: '/cyber-monitor/', title: 'Cyber Monitor: exploited vulnerabilities, cyber incidents & loss events for insurers · InsuranceWatcher',
+            description: 'Cyber aggregation risk for insurers: actively exploited vulnerabilities by systemic category, SEC cyber incident disclosures, cyber loss events with insured estimates, cyber pricing and AI exposure.',
+            body: `<h1>Cyber Monitor</h1>${navHtml}<ul>${cy.insights.map((x) => `<li>${esc(x)}</li>`).join('')}</ul><h2>Systemic watch</h2><table><tr><th>Category</th><th>Added, 90 days</th><th>Added, 12 months</th><th>Used by ransomware</th></tr>${sys}</table><h2>Cyber loss events</h2><ul>${evs}</ul>${sec ? `<h2>Cyber incidents disclosed to the SEC</h2><ul>${sec}</ul>` : ''}`,
+            jsonld: { '@context': 'https://schema.org', '@type': 'Dataset', name: 'Cyber Monitor for insurers', url: `${SITE}/cyber-monitor/`,
+                description: 'Exploited vulnerabilities by aggregation category, SEC cyber incident disclosures and cyber loss events.', creator: { '@type': 'Organization', name: 'InsuranceWatcher' } } });
+        urls.push({ loc: '/cyber-monitor/', priority: '0.9', changefreq: 'daily' });
+    } catch (e) { console.warn('prerender cyber:', e.message); }
 
     // Market performance
     try {

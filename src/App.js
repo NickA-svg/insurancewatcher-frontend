@@ -5,13 +5,16 @@ import Home from "./pages/News";
 import CatMonitor from "./pages/CatMonitor";
 import Litigation from "./pages/Litigation";
 import Performance from "./pages/Performance";
+import CyberMonitor from "./pages/CyberMonitor";
 import { usePath, tagSlug } from "./router";
 import { tagWords } from "./components/TitleTags";
 
 function App() {
     const path = usePath();
     let page;
-    if (path.startsWith('/market-performance')) {
+    if (path.startsWith('/cyber-monitor')) {
+        page = <CyberMonitor />;
+    } else if (path.startsWith('/market-performance')) {
         page = <Performance />;
     } else if (path.startsWith('/securities-class-actions')) {
         page = <Litigation />;

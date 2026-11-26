@@ -125,10 +125,26 @@ function resultsPost(perf) {
     return { name: '3-lloyds', html, caption };
 }
 
+// 4. Cyber watch: exploitation pressure by aggregation category, plus SEC incident disclosures
+function cyberPost(cy) {
+    if (!cy || !cy.tiles || !cy.tiles.kev30) return null;
+    const t = cy.tiles;
+    const cats = cy.systemic.filter((x) => x.key !== 'other' && x.n90 > 0).sort((a, b) => b.n90 - a.n90).slice(0, 5);
+    const max = Math.max(1, ...cats.map((c) => c.n90));
+    const bars = cats.map((c) => `<div style="margin:16px 0"><div style="display:flex;justify-content:space-between;font-size:30px"><span>${esc(c.label)}</span><b>${c.n90}</b></div>
+        <div style="height:22px;background:#22384a;border-radius:6px;margin-top:8px"><div style="height:100%;width:${(100 * c.n90) / max}%;background:${['edge', 'transfer', 'itops', 'supply'].includes(c.key) ? '#f0a35b' : '#3dd2cc'};border-radius:6px"></div></div></div>`).join('');
+    const html = page(`<div class="kicker">Cyber watch · last 90 days</div><h1>${t.kev90} newly exploited vulnerabilities</h1>
+        <div class="sub">${t.kev_ransom90} linked to ransomware · ${t.sec90} material incidents disclosed to the SEC</div>
+        <div class="body"><div style="font-size:26px;color:#9fb0bd;margin-bottom:6px">Where they sit <span style="color:#f0a35b">(orange = can reach many insureds at once)</span></div>${bars}</div>`);
+    const caption = `Cyber watch: ${t.kev90} vulnerabilities newly confirmed as exploited in the last 90 days, ${t.kev_ransom90} of them linked to ransomware, and ${t.sec90} material cyber incidents disclosed by US-listed companies.\n\n${(cy.insights || [])[0] || ''}\n\nSystemic watch, loss events and AI exposure: link in bio (${SITE}/cyber-monitor).\n\nSources: CISA KEV catalogue, SEC EDGAR.\n\n#cyberinsurance #cyber #ransomware #aggregation #insurance #reinsurance #londonmarket #lloyds`;
+    return { name: '4-cyber-watch', html, caption };
+}
+
 async function main() {
     if (!API || API === '/') throw new Error('Set API_URL to the InsuranceWatcher API');
-    const [events, lit, perf] = await Promise.all([get('events?limit=120'), get('securities-cases?kind=sca&limit=100'), get('performance')]);
-    const posts = [catPost(events), suitsPost(lit), resultsPost(perf)].filter(Boolean);
+    const [events, lit, perf, cy] = await Promise.all([get('events?limit=120'), get('securities-cases?kind=sca&limit=100'), get('performance'),
+        get('cyber').catch(() => null)]);
+    const posts = [catPost(events), cyberPost(cy), suitsPost(lit), resultsPost(perf)].filter(Boolean);
     fs.mkdirSync(OUT, { recursive: true });
     const { chromium } = await import('playwright');
     const browser = await chromium.launch(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {});
