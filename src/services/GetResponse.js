@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SentimentChart from '../components/ChartComponent';
 
-export default function Responses({ root, tag, search }) {
+export default function Responses({ root, tag, search, onEventClick }) {
     const [data, setData] = useState(null)
     const [status, setStatus] = useState('loading')
 
@@ -15,5 +15,5 @@ export default function Responses({ root, tag, search }) {
         return () => { cancelled = true; };
     }, [root, tag, search])
 
-    return <SentimentChart status={status} tag={tag} data={data} />
+    return <SentimentChart status={status} tag={tag} data={data} onEventClick={onEventClick} />
 }

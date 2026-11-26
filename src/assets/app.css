@@ -14,15 +14,40 @@
     margin-bottom: 8px;
 }
 
-.tag-row {
+/* Tag bar: wraps into labelled groups on larger screens; one swipeable row on phones */
+.tag-bar {
     display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 8px;
-    scrollbar-width: none;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    align-items: center;
+    padding-bottom: 10px;
 }
-
-.tag-row::-webkit-scrollbar { display: none; }
+.tag-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+.tag-group-title {
+    font-size: 12px !important;
+    color: #5b6b78;
+    font-weight: 600 !important;
+    margin-right: 2px !important;
+}
+@media (max-width: 600px) {
+    .tag-bar {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scroll-snap-type: x proximity;
+        -webkit-mask-image: linear-gradient(to right, #000 85%, transparent);
+        mask-image: linear-gradient(to right, #000 85%, transparent);
+        padding-right: 24px;
+        scrollbar-width: none;
+    }
+    .tag-bar::-webkit-scrollbar { display: none; }
+    .tag-group { flex-wrap: nowrap; }
+    .tag-group-title { display: none; }
+}
 
 .article-card {
     display: block;
@@ -67,3 +92,17 @@
     font-size: 13px;
     padding: 24px 16px 40px;
 }
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 14px;
+    max-width: 920px;
+    margin: 0 auto 12px;
+}
+.footer-links a, .site-footer a { color: #5b6b78; text-decoration: none; }
+.footer-links a:hover, .site-footer a:hover { text-decoration: underline; }
+
+.event-row { cursor: pointer; }
+.event-row:hover .MuiCard-root { border-color: #22b8b1; }

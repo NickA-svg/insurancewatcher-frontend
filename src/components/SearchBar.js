@@ -3,8 +3,8 @@ import { IconButton, InputAdornment, OutlinedInput } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from '@mui/icons-material/Clear';
 
-export default function SearchBar({ setSearchQuery }) {
-    const [value, setValue] = React.useState("")
+export default function SearchBar({ setSearchQuery, initial = "" }) {
+    const [value, setValue] = React.useState(initial)
 
     function submit(e) {
         e.preventDefault();

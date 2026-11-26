@@ -61,7 +61,7 @@
   },
   "scripts": {
     "start": "serve -s build",
-    "build": "node scripts/build.js",
+    "build": "node scripts/build.js && node scripts/prerender.mjs",
     "test": "node scripts/test.js",
     "dev": "node scripts/start.js"
   },
@@ -137,5 +137,8 @@
       "react-app"
     ]
   },
-  "proxy": "http://fastapi-service:8000"
+  "proxy": "http://fastapi-service:8000",
+  "engines": {
+    "node": ">=18"
+  }
 }
