@@ -11,8 +11,9 @@ Everything comes from public data already on the site. No commentary, no opinion
 
 ## Posting by hand (default)
 
-GitHub → Actions → Weekly social posts → latest run → Artifacts → download `instagram-posts-<date>`.
-Post the PNGs with the text from `captions.md`. Run it any time with **Run workflow**.
+Open `https://insurancewatcher.news/social/<date>/` on your phone (the date is the Monday the workflow ran).
+Hold each image to save it, tap **Copy caption**, and post. The page is hidden from search engines.
+The same files are also attached to each workflow run as an artifact. Run it any time with **Run workflow**.
 
 ## Running it locally
 
@@ -29,5 +30,4 @@ the `instagram_content_publish` permission. Then in the GitHub repo settings:
 - Secrets: `IG_USER_ID` (the Instagram account id) and `IG_ACCESS_TOKEN` (a long-lived token)
 - Variable: `IG_AUTOPOST` = `true`
 
-The workflow then copies the images to `public/social/<date>/`, waits for Cloudflare to deploy them, and
-publishes each post. Remove the variable to go back to posting by hand.
+The workflow then waits for Cloudflare to deploy that week's images and publishes each post. Remove the variable to go back to posting by hand.

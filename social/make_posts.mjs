@@ -142,6 +142,15 @@ async function main() {
         posts.map((p) => `## ${p.name}.png\n\n${p.caption}\n`).join('\n');
     fs.writeFileSync(path.join(OUT, 'captions.md'), md);
     fs.writeFileSync(path.join(OUT, 'posts.json'), JSON.stringify(posts.map((p) => ({ file: `${p.name}.png`, caption: p.caption })), null, 1));
+    // phone-friendly page: hold an image to save it, tap to copy its caption
+    const cards = posts.map((p, i) => `<section><img src="${p.name}.png" alt=""><textarea id="c${i}" readonly>${esc(p.caption)}</textarea>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('c${i}').value);this.textContent='Copied'">Copy caption</button></section>`).join('');
+    fs.writeFileSync(path.join(OUT, 'index.html'), `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>Posts for ${iso(today)}</title><style>body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;padding:16px;background:#f4f6f8;color:#14212b}
+section{background:#fff;border-radius:12px;padding:12px;margin:0 auto 18px;max-width:520px;box-shadow:0 1px 3px rgba(0,0,0,.08)}img{width:100%;border-radius:8px;display:block}
+textarea{width:100%;box-sizing:border-box;height:150px;margin-top:10px;font:14px/1.4 inherit;border:1px solid #d5dde3;border-radius:8px;padding:8px}
+button{margin-top:8px;width:100%;padding:12px;border:0;border-radius:8px;background:#1a9f99;color:#fff;font-size:16px;font-weight:600}</style></head>
+<body><h1 style="font-size:20px;max-width:520px;margin:4px auto 14px">InsuranceWatcher posts · week of ${iso(today)}</h1>${cards}</body></html>`);
     console.log(`social: wrote ${posts.length} posts to ${OUT}`);
 }
 

@@ -144,7 +144,7 @@ async function main() {
     } catch (e) { console.warn('prerender litigation:', e.message); }
 
     fs.writeFileSync(path.join(BUILD, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${SITE}${u.loc}</loc><lastmod>${today}</lastmod><changefreq>${u.changefreq}</changefreq><priority>${u.priority}</priority></url>`).join('\n')}\n</urlset>\n`);
-    fs.writeFileSync(path.join(BUILD, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
+    fs.writeFileSync(path.join(BUILD, 'robots.txt'), `User-agent: *\nAllow: /\nDisallow: /social/\n\nSitemap: ${SITE}/sitemap.xml\n`);
     // No _redirects file: on Cloudflare Pages redirect rules override real files, so a catch-all would hide every
     // page and asset. Pages already serves the app for unknown paths because the site has no top-level 404.html.
     // Static assets cache for a year (file names are hashed).

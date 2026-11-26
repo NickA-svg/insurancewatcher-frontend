@@ -1,5 +1,5 @@
-# Weekly Instagram posts: renders this week's images and captions from the live API.
-# Download them from the run's "Artifacts" section, or let the workflow publish them (see social/README.md).
+# Weekly Instagram posts: renders this week's images and captions from the live API and puts them on the site at
+# https://insurancewatcher.news/social/<date>/ (not indexed) ready to post. Optionally publishes them (see social/README.md).
 name: Weekly social posts
 on:
   schedule:
@@ -30,13 +30,12 @@ jobs:
           name: instagram-posts-${{ env.WEEK }}
           path: social-out
           retention-days: 30
-      # Optional auto-publish: set repository variable IG_AUTOPOST=true and secrets IG_USER_ID, IG_ACCESS_TOKEN.
-      - name: Put images on the site
-        if: vars.IG_AUTOPOST == 'true'
+      - name: Put this week's posts on the site
         run: |
           mkdir -p "public/social/$WEEK" && cp social-out/* "public/social/$WEEK/"
           git config user.name "insurancewatcher-bot" && git config user.email "insurancewatcher-bot@users.noreply.github.com"
           git add "public/social/$WEEK" && git commit -m "Social posts for $WEEK" && git push
+      # Optional auto-publish: set repository variable IG_AUTOPOST=true and secrets IG_USER_ID, IG_ACCESS_TOKEN.
       - name: Wait for the site to deploy the images
         if: vars.IG_AUTOPOST == 'true'
         run: |
