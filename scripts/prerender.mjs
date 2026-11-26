@@ -5,14 +5,14 @@
  * The React app still takes over in the browser; this gives search engines (and slow connections)
  * real content, titles, descriptions and structured data for every page.
  *
- * Env: REACT_APP_API_KEY (API base, trailing slash), SITE_URL (e.g. https://insurancewatcher.co.uk)
+ * Env: REACT_APP_API_KEY (API base, trailing slash), SITE_URL (e.g. https://insurancewatcher.news)
  */
 import fs from 'node:fs';
 import path from 'node:path';
 
 const BUILD = path.resolve('build');
 const API = process.env.REACT_APP_API_KEY || '';
-const SITE = (process.env.SITE_URL || 'https://insurancewatcher.co.uk').replace(/\/$/, '');
+const SITE = (process.env.SITE_URL || 'https://insurancewatcher.news').replace(/\/$/, '');
 const TAGS = ['Property', 'Casualty', 'Financial Lines', 'Cyber', 'Marine', 'Hull & War', 'Energy', 'Aviation',
     'Terrorism & PV', 'Political Risk & Credit', 'Motor', 'Reinsurance', 'Climate', 'Legislation', 'M&A', 'People'];
 const slug = (t) => t.toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
