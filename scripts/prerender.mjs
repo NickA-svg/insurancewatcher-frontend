@@ -119,8 +119,9 @@ async function main() {
 
     fs.writeFileSync(path.join(BUILD, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${SITE}${u.loc}</loc><lastmod>${today}</lastmod><changefreq>${u.changefreq}</changefreq><priority>${u.priority}</priority></url>`).join('\n')}\n</urlset>\n`);
     fs.writeFileSync(path.join(BUILD, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
-    // Cloudflare Pages: unknown paths fall back to the app; static assets cache for a year (file names are hashed)
-    fs.writeFileSync(path.join(BUILD, '_redirects'), `/* /app-shell.html 200\n`);
+    // No _redirects file: on Cloudflare Pages redirect rules override real files, so a catch-all would hide every
+    // page and asset. Pages already serves the app for unknown paths because the site has no top-level 404.html.
+    // Static assets cache for a year (file names are hashed).
     fs.writeFileSync(path.join(BUILD, '_headers'), `/static/*\n  Cache-Control: public, max-age=31536000, immutable\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n`);
     console.log(`prerender: wrote ${urls.length} pages + sitemap.xml`);
 }
