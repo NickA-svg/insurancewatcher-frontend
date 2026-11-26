@@ -5,11 +5,13 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import LinkIcon from '@mui/icons-material/Link';
 import EstimateChart from '../components/EstimateChart';
+import EventMap from '../components/EventMap';
 import { navigate, setPageMeta } from '../router';
 import "../assets/app.css"
 
 const API = process.env.REACT_APP_API_KEY;
 const HAZARDS = [["", "All hazards"], ["TC", "Hurricanes & typhoons"], ["EQ", "Earthquakes"], ["FL", "Floods"], ["WF", "Wildfires"], ["WS", "Windstorms"], ["VO", "Volcanoes"]];
+const PERIODS = [[90, "90 days"], [365, "12 months"], [0, "All"]];
 const fmtDate = (d) => (d ? new Date(String(d).slice(0, 10) + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 const curSym = (c) => ({ USD: '$', EUR: '€', GBP: '£' }[c] || (c ? c + ' ' : '$'));
 const bn = (v) => (v >= 10e9 ? (v / 1e9).toFixed(0) : (v / 1e9).toFixed(1));
@@ -109,6 +111,7 @@ export default function CatMonitor({ slug }) {
     const [events, setEvents] = React.useState(null);
     const [pinned, setPinned] = React.useState(null);
     const [error, setError] = React.useState(false);
+    const [period, setPeriod] = React.useState(365);
 
     React.useEffect(() => { const t = setTimeout(() => setDebounced(q), 300); return () => clearTimeout(t); }, [q]);
     React.useEffect(() => {
@@ -137,6 +140,12 @@ export default function CatMonitor({ slug }) {
     const toggle = (s) => navigate(slug === s ? '/cat-monitor/' : `/cat-monitor/${s}/`, { replace: true, scroll: false });
     const list = events || [];
     const showPinnedSeparately = pinned && !list.find((e) => e.slug === pinned.slug);
+    const cutoff = period ? new Date(Date.now() - period * 864e5).toISOString().slice(0, 10) : '';
+    const mapped = list.filter((e) => String(e.start_date).slice(0, 10) >= cutoff);
+    const openFromMap = (s) => {
+        navigate(`/cat-monitor/${s}/`, { replace: true, scroll: false });
+        setTimeout(() => { const el = document.getElementById(`event-${s}`); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
+    };
 
     return (
         <div className="page">
@@ -161,6 +170,20 @@ export default function CatMonitor({ slug }) {
                         label={<Typography variant="body2">With loss estimates</Typography>} />
                 </div>
             </div>
+            {events !== null && !error && list.length > 0 && (
+                <Card sx={{ p: { xs: 1.5, sm: 2 }, mb: 2 }}>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1} sx={{ mb: 1 }}>
+                        <Typography variant="subtitle1">Where events struck</Typography>
+                        <Stack direction="row" spacing={0.75}>
+                            {PERIODS.map(([d, lab]) => (
+                                <Chip key={d} size="small" label={lab} onClick={() => setPeriod(d)}
+                                    color={period === d ? 'secondary' : 'default'} variant={period === d ? 'filled' : 'outlined'} />
+                            ))}
+                        </Stack>
+                    </Stack>
+                    <EventMap events={mapped} onSelect={openFromMap} selected={slug} />
+                </Card>
+            )}
             {showPinnedSeparately && <EventRow e={pinned} open onToggle={() => toggle(pinned.slug)} />}
             {error ? <Alert severity="warning">Events couldn't load. Please try again shortly.</Alert>
                 : events === null ? <div className="loader-div"><CircularProgress color="secondary" /></div>

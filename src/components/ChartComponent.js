@@ -78,7 +78,7 @@ function PanelTitle({ title, help }) {
     );
 }
 
-function Panel({ months, series, height, yFormat, events, labelled, showX, sx, isMobile, yMin, yMax }) {
+function Panel({ months, series, height, yFormat, events, showX, sx, isMobile, yMin, yMax }) {
     return (
         <Box sx={{ height }}>
             <ResponsiveChartContainer
@@ -87,17 +87,13 @@ function Panel({ months, series, height, yFormat, events, labelled, showX, sx, i
                     tickLabelStyle: { fontSize: 11, fill: '#5b6b78' },
                     tickInterval: (v, i) => i % (isMobile ? 6 : 3) === 0 }]}
                 yAxis={[{ id: 'y', min: yMin, max: yMax, tickNumber: 3, tickLabelStyle: { fontSize: 10, fill: '#8796a2' }, valueFormatter: yFormat }]}
-                margin={{ ...MARGIN, top: labelled ? 34 : MARGIN.top, bottom: showX ? 26 : MARGIN.bottom }}
+                margin={{ ...MARGIN, bottom: showX ? 26 : MARGIN.bottom }}
                 sx={sx}
             >
                 <ChartsReferenceLine y={0} lineStyle={{ stroke: '#d5dde3' }} />
-                {events.map((e, i) => (
+                {events.map((e) => (
                     <ChartsReferenceLine key={e.month + e.label} x={e.month}
-                        label={labelled ? e.label : undefined} labelAlign="start"
-                        lineStyle={{ stroke: C.event, strokeDasharray: '3 3' }}
-                        labelStyle={{ fontSize: 10, fill: C.eventText,
-                            textAnchor: months.indexOf(e.month) > months.length * 0.85 ? 'end' : 'start',
-                            transform: `translate(${months.indexOf(e.month) > months.length * 0.85 ? -6 : 0}px, ${i % 2 ? -12 : -24}px)` }} />
+                        lineStyle={{ stroke: C.event, strokeDasharray: '3 3' }} />
                 ))}
                 <BarPlot />
                 <LinePlot />
@@ -110,18 +106,81 @@ function Panel({ months, series, height, yFormat, events, labelled, showX, sx, i
     );
 }
 
+const LANE_ROW = 18;
+const CHAR_W = 6.1;
+
+// Place short event labels above the chart without overlaps: biggest events first, each in the first row
+// where it fits; events that fit nowhere keep their chip below but get no label or line.
+function placeLabels(events, months, width, rows) {
+    const plotW = width - MARGIN.left - MARGIN.right;
+    if (plotW <= 0 || !months.length) return [];
+    const slot = plotW / months.length;
+    const taken = Array.from({ length: rows }, () => []);
+    const placed = [];
+    for (const e of [...events].sort((a, b) => (b.weight || 0) - (a.weight || 0))) {
+        const i = months.indexOf(e.month);
+        if (i < 0) continue;
+        const x = MARGIN.left + (i + 0.5) * slot;
+        const text = e.short || e.label;
+        const w = text.length * CHAR_W + 8;
+        const left = Math.min(Math.max(x - w / 2, 0), width - w);
+        for (let r = 0; r < rows; r++) {
+            if (taken[r].every(([a, b]) => left + w + 6 <= a || left >= b + 6)) {
+                taken[r].push([left, left + w]);
+                placed.push({ ...e, x, left, w, row: r, text });
+                break;
+            }
+        }
+    }
+    return placed.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function EventLane({ placed, rows, onEventClick }) {
+    const h = rows * LANE_ROW + 8;
+    return (
+        <Box sx={{ position: 'relative', height: h, mt: 0.5 }}>
+            {placed.map((e) => (
+                <React.Fragment key={e.key || e.label}>
+                    <Box sx={{ position: 'absolute', left: e.x, top: (e.row + 1) * LANE_ROW - 3, bottom: 0, borderLeft: `1px dashed ${C.event}` }} />
+                    <Tooltip title={`${e.label} · ${new Date(e.date + 'T00:00:00').toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}${e.note ? ' — ' + e.note : ''}`}>
+                        <Box component="button" type="button" onClick={() => onEventClick && onEventClick(e)}
+                            sx={{ position: 'absolute', left: e.left, top: e.row * LANE_ROW, width: e.w, height: LANE_ROW - 3, p: 0,
+                                border: 0, borderRadius: '4px', cursor: 'pointer', font: 'inherit', fontSize: 10.5, lineHeight: `${LANE_ROW - 3}px`,
+                                color: C.eventText, bgcolor: e.kind === 'man-made' ? '#f4effa' : '#fbf1f1', whiteSpace: 'nowrap', overflow: 'hidden',
+                                '&:hover': { bgcolor: e.kind === 'man-made' ? '#e9def6' : '#f6e0e0' } }}>
+                            {e.text}
+                        </Box>
+                    </Tooltip>
+                </React.Fragment>
+            ))}
+        </Box>
+    );
+}
+
+function useWidth() {
+    const ref = React.useRef(null);
+    const [w, setW] = React.useState(0);
+    React.useEffect(() => {
+        if (!ref.current) return undefined;
+        const ro = new ResizeObserver(([entry]) => setW(Math.round(entry.contentRect.width)));
+        ro.observe(ref.current);
+        return () => ro.disconnect();
+    }, []);
+    return [ref, w];
+}
+
 export default function MarketCycle({ status, tag, data, onEventClick }) {
     const isMobile = useMediaQuery('(max-width:600px)');
     const [open, setOpen] = React.useState(!isMobile);
+    const [widthRef, width] = useWidth();
+    const laneRows = isMobile ? 2 : 3;
     const label = tag === 'All' ? 'the market' : tag;
     const ready = status === 'ready' && data && data.months && data.months.length > 0;
 
     let months = [], top = [], panels = [];
     if (ready) {
         months = data.months;
-        const maxLabels = isMobile ? 3 : 6;
-        top = [...data.events].sort((a, b) => (b.weight || 0) - (a.weight || 0)).slice(0, maxLabels)
-            .sort((a, b) => a.date.localeCompare(b.date));
+        top = placeLabels(data.events, months, width, laneRows);
         const sentSeries = [
             { type: 'line', id: 'monthly', data: data.sentiment, label: 'Monthly', color: C.sentimentLight, showMark: false, valueFormatter: fmt2 },
             { type: 'line', id: 'trend', data: data.trend, label: '3-month average', color: C.sentiment, showMark: false, connectNulls: true, valueFormatter: fmt2 },
@@ -169,6 +228,7 @@ export default function MarketCycle({ status, tag, data, onEventClick }) {
                 </Button>
             </Stack>
             {ready && <Summary data={data} label={label} />}
+            <Box ref={widthRef} sx={{ width: '100%', height: 0 }} />
             <Collapse in={open} unmountOnExit>
                 {status === 'loading' && <div className="loader-div"><CircularProgress color="secondary" /></div>}
                 {status === 'error' && <Typography color="text.secondary" sx={{ p: 3 }}>The market panel couldn't load. Please try again shortly.</Typography>}
@@ -177,8 +237,9 @@ export default function MarketCycle({ status, tag, data, onEventClick }) {
                     <Box key={p.key}>
                         <PanelTitle title={p.title} help={p.help} />
                         <Legend items={p.legend} />
+                        {idx === 0 && top.length > 0 && <EventLane placed={top} rows={laneRows} onEventClick={onEventClick} />}
                         <Panel months={months} series={p.series} height={p.height} yFormat={p.yFormat} yMin={p.yMin} yMax={p.yMax}
-                            events={top} labelled={idx === 0} showX={idx === panels.length - 1} sx={p.sx} isMobile={isMobile} />
+                            events={top} showX={idx === panels.length - 1} sx={p.sx} isMobile={isMobile} />
                     </Box>
                 ))}
                 {ready && data.events.length > 0 && (
@@ -193,7 +254,7 @@ export default function MarketCycle({ status, tag, data, onEventClick }) {
                                 </Tooltip>
                             ))}
                         </Box>
-                        <Typography variant="caption" color="text.secondary">Pink = natural catastrophe, lilac = man-made. Click an event to see its headlines.</Typography>
+                        <Typography variant="caption" color="text.secondary">Pink = natural catastrophe, lilac = man-made. Click an event to see its coverage.</Typography>
                     </Box>
                 )}
                 {ready && data.signals && data.signals.length > 0 && (

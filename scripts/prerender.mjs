@@ -53,7 +53,7 @@ ${STYLE}</head>`)
     fs.writeFileSync(out, html);
 }
 
-const navHtml = `<nav><a href="/">All news</a>${TAGS.map((t) => `<a href="/news/${slug(t)}">${esc(t)}</a>`).join('')}<a href="/cat-monitor">Cat Monitor</a></nav>`;
+const navHtml = `<nav><a href="/">All news</a>${TAGS.map((t) => `<a href="/news/${slug(t)}">${esc(t)}</a>`).join('')}<a href="/cat-monitor">Cat Monitor</a><a href="/securities-class-actions/">Securities class actions</a></nav>`;
 const articleList = (rows) => `<ul>${rows.map((a) => `<li><a href="${esc(a.Link)}" rel="noopener">${esc(a.Title)}</a> <small>${esc(host(a.Link))} · ${fmtDate(a.YearMonthDay)}</small></li>`).join('')}</ul>`;
 
 async function main() {
@@ -116,6 +116,18 @@ async function main() {
             } catch (err) { console.warn(`prerender event ${e.slug}:`, err.message); }
         }
     } catch (e) { console.warn('prerender cat monitor:', e.message); }
+
+    // Securities class action tracker
+    try {
+        const lit = await getJSON('securities-cases?kind=sca&limit=200');
+        const rows = (lit.cases || []).map((c) => `<tr><td>${esc(c.company || c.ticker)} (${esc(c.ticker)})</td><td>${esc(c.sector || '')}</td><td>${c.class_start ? fmtDate(c.class_start) + ' – ' + fmtDate(c.class_end) : ''}</td><td>${fmtDate(c.lead_deadline)}</td><td><a href="${esc(c.latest_link)}" rel="noopener">${fmtDate(c.first_seen)}</a></td></tr>`).join('');
+        page({ urlPath: '/securities-class-actions/', title: 'Securities class action tracker: new D&O lawsuits, lead plaintiff deadlines · InsuranceWatcher',
+            description: 'New US securities class actions, shareholder derivative suits and plaintiff-firm investigations as they are announced: class periods, lead-plaintiff deadlines, sectors and share drops.',
+            body: `<h1>Securities class action tracker</h1><p>New US securities class actions, derivative suits and investigations as they are announced: the D&amp;O claims pipeline.</p>${navHtml}${rows ? `<table><tr><th>Company</th><th>Sector</th><th>Class period</th><th>Lead plaintiff deadline</th><th>First announced</th></tr>${rows}</table>` : ''}`,
+            jsonld: { '@context': 'https://schema.org', '@type': 'Dataset', name: 'Securities class action tracker', url: `${SITE}/securities-class-actions/`,
+                description: 'US securities class actions and derivative suits compiled from public law-firm announcements.', creator: { '@type': 'Organization', name: 'InsuranceWatcher' } } });
+        urls.push({ loc: '/securities-class-actions/', priority: '0.9', changefreq: 'hourly' });
+    } catch (e) { console.warn('prerender litigation:', e.message); }
 
     fs.writeFileSync(path.join(BUILD, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${SITE}${u.loc}</loc><lastmod>${today}</lastmod><changefreq>${u.changefreq}</changefreq><priority>${u.priority}</priority></url>`).join('\n')}\n</urlset>\n`);
     fs.writeFileSync(path.join(BUILD, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
