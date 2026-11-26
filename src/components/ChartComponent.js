@@ -157,6 +157,89 @@ function EventLane({ placed, rows, onEventClick }) {
     );
 }
 
+const KIND = {
+    natural: { bar: '#e39a9a', bg: '#fdf6f6', label: 'Natural catastrophe' },
+    'man-made': { bar: '#b39ddb', bg: '#f8f5fc', label: 'Man-made' },
+};
+const fmtEventDate = (d) => new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+const STRIP_COUNT = 8;
+
+function EventCard({ e, onEventClick, compact }) {
+    const k = KIND[e.kind] || KIND.natural;
+    return (
+        <Box component="button" type="button" onClick={() => onEventClick && onEventClick(e)} title={e.note || e.label}
+            sx={{ flex: compact ? undefined : '0 0 auto', width: compact ? 'auto' : 168, minHeight: compact ? 0 : 74, textAlign: 'left',
+                font: 'inherit', cursor: 'pointer', border: '1px solid #e6ecf0', borderLeft: `3px solid ${k.bar}`, borderRadius: '6px',
+                bgcolor: '#fff', px: 1.25, py: compact ? 0.6 : 1, scrollSnapAlign: 'start',
+                display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'stretch',
+                '&:hover': { bgcolor: k.bg, borderColor: k.bar } }}>
+            <Typography variant="caption" color="text.secondary" component="div">{fmtEventDate(e.date)}</Typography>
+            <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.25 }}>{e.label.replace(/\s*\([A-Z][a-z]{2,3} \d{4}\)$/, '')}</Typography>
+            {!compact && e.note && (
+                <Typography variant="caption" color="text.secondary" component="div"
+                    sx={{ mt: 0.25, lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {e.note}
+                </Typography>
+            )}
+        </Box>
+    );
+}
+
+// Latest events as a swipeable strip; the full history opens on demand, grouped by year and filterable by kind.
+function EventStrip({ events, tag, onEventClick }) {
+    const [all, setAll] = React.useState(false);
+    const [kind, setKind] = React.useState('');
+    const newest = [...events].sort((a, b) => b.date.localeCompare(a.date));
+    const shown = newest.filter((e) => !kind || e.kind === kind);
+    const years = [...new Set(shown.map((e) => e.date.slice(0, 4)))];
+    return (
+        <Box sx={{ mt: 2 }}>
+            <Stack direction="row" alignItems="baseline" justifyContent="space-between" spacing={1}>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>Market-moving events{tag !== 'All' ? ` for ${tag}` : ''}</Typography>
+                {newest.length > STRIP_COUNT && (
+                    <Button size="small" onClick={() => setAll(!all)} sx={{ flexShrink: 0 }}>
+                        {all ? 'Show latest' : `All ${newest.length} events`}
+                    </Button>
+                )}
+            </Stack>
+            {!all ? (
+                <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', pb: 1, mt: 0.5, scrollSnapType: 'x mandatory',
+                    maskImage: 'linear-gradient(to right, #000 92%, transparent)', WebkitMaskImage: 'linear-gradient(to right, #000 92%, transparent)' }}>
+                    {newest.slice(0, STRIP_COUNT).map((e) => <EventCard key={e.key || e.label} e={e} onEventClick={onEventClick} />)}
+                </Box>
+            ) : (
+                <Box sx={{ mt: 0.5 }}>
+                    <Stack direction="row" spacing={0.75} sx={{ mb: 1 }}>
+                        {[['', 'All'], ['natural', 'Natural catastrophes'], ['man-made', 'Man-made']].map(([k, lab]) => (
+                            <Chip key={k || 'all'} size="small" label={lab} onClick={() => setKind(k)}
+                                color={kind === k ? 'secondary' : 'default'} variant={kind === k ? 'filled' : 'outlined'} />
+                        ))}
+                    </Stack>
+                    <Box sx={{ maxHeight: 340, overflowY: 'auto', pr: 0.5 }}>
+                        {years.map((y) => (
+                            <Box key={y} sx={{ mb: 1 }}>
+                                <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>{y}</Typography>
+                                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 0.75, mt: 0.25 }}>
+                                    {shown.filter((e) => e.date.startsWith(y)).map((e) => <EventCard key={e.key || e.label} e={e} onEventClick={onEventClick} compact />)}
+                                </Box>
+                            </Box>
+                        ))}
+                    </Box>
+                </Box>
+            )}
+            <Stack direction="row" columnGap={2} rowGap={0.25} flexWrap="wrap" alignItems="center" sx={{ mt: 0.25 }}>
+                {Object.values(KIND).map((k) => (
+                    <Stack key={k.label} direction="row" spacing={0.6} alignItems="center" sx={{ whiteSpace: 'nowrap' }}>
+                        <Box sx={{ width: 3, height: 12, bgcolor: k.bar, borderRadius: 1 }} />
+                        <Typography variant="caption" color="text.secondary">{k.label}</Typography>
+                    </Stack>
+                ))}
+                <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>Click an event for its coverage</Typography>
+            </Stack>
+        </Box>
+    );
+}
+
 function useWidth() {
     const ref = React.useRef(null);
     const [w, setW] = React.useState(0);
@@ -242,21 +325,7 @@ export default function MarketCycle({ status, tag, data, onEventClick }) {
                             events={top} showX={idx === panels.length - 1} sx={p.sx} isMobile={isMobile} />
                     </Box>
                 ))}
-                {ready && data.events.length > 0 && (
-                    <Box sx={{ mt: 2 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.75 }}>Market-moving events{tag !== 'All' ? ` for ${tag}` : ''}</Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
-                            {[...data.events].reverse().map((e) => (
-                                <Tooltip key={e.date + e.label} title={e.note || ''} disableHoverListener={!e.note}>
-                                    <Chip size="small" variant="outlined" clickable onClick={() => onEventClick && onEventClick(e)}
-                                        label={`${e.label} · ${new Date(e.date + 'T00:00:00').toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}`}
-                                        sx={{ borderColor: e.kind === 'man-made' ? '#c9b6e4' : '#efc9c9', bgcolor: '#fff' }} />
-                                </Tooltip>
-                            ))}
-                        </Box>
-                        <Typography variant="caption" color="text.secondary">Pink = natural catastrophe, lilac = man-made. Click an event to see its coverage.</Typography>
-                    </Box>
-                )}
+                {ready && data.events.length > 0 && <EventStrip events={data.events} tag={tag} onEventClick={onEventClick} />}
                 {ready && data.signals && data.signals.length > 0 && (
                     <Box sx={{ mt: 2 }}>
                         <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>Latest rate signals</Typography>
