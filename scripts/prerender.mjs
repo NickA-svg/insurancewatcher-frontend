@@ -53,7 +53,7 @@ ${STYLE}</head>`)
     fs.writeFileSync(out, html);
 }
 
-const navHtml = `<nav><a href="/">All news</a>${TAGS.map((t) => `<a href="/news/${slug(t)}">${esc(t)}</a>`).join('')}<a href="/cat-monitor">Cat Monitor</a><a href="/securities-class-actions/">Securities class actions</a></nav>`;
+const navHtml = `<nav><a href="/">All news</a>${TAGS.map((t) => `<a href="/news/${slug(t)}">${esc(t)}</a>`).join('')}<a href="/cat-monitor">Cat Monitor</a><a href="/market-performance/">Market performance</a><a href="/securities-class-actions/">Securities class actions</a></nav>`;
 const articleList = (rows) => `<ul>${rows.map((a) => `<li><a href="${esc(a.Link)}" rel="noopener">${esc(a.Title)}</a> <small>${esc(host(a.Link))} · ${fmtDate(a.YearMonthDay)}</small></li>`).join('')}</ul>`;
 
 async function main() {
@@ -116,6 +116,20 @@ async function main() {
             } catch (err) { console.warn(`prerender event ${e.slug}:`, err.message); }
         }
     } catch (e) { console.warn('prerender cat monitor:', e.message); }
+
+    // Market performance
+    try {
+        const perf = await getJSON('performance');
+        const ll = perf.lloyds.results.filter((r) => r.period === 'FY');
+        const llRows = ll.map((r) => `<tr><td>${r.year}</td><td>${r.combined_ratio}%</td><td>£${r.gwp_bn}bn</td></tr>`).join('');
+        const coRows = (perf.companies || []).map((c) => `<tr><td>${esc(c.company)}${c.segment ? ' (' + esc(c.segment) + ')' : ''}</td><td>${esc(c.latest.label)}</td><td>${c.latest.value}%</td><td><a href="${esc(c.latest.link)}" rel="noopener">${esc(host(c.latest.link))}</a></td></tr>`).join('');
+        page({ urlPath: '/market-performance/', title: "Insurance market performance: Lloyd's and re/insurer combined ratios · InsuranceWatcher",
+            description: "Lloyd's market results and reported combined ratios, loss ratios and premiums for listed insurers and reinsurers, each linked to its source.",
+            body: `<h1>Market performance</h1><p>Lloyd's market results and the combined ratios re/insurers report.</p>${navHtml}<h2>Lloyd's market</h2><table><tr><th>Year</th><th>Combined ratio</th><th>Gross written premium</th></tr>${llRows}</table>${coRows ? `<h2>Reported combined ratios</h2><table><tr><th>Company</th><th>Period</th><th>Combined ratio</th><th>Source</th></tr>${coRows}</table>` : ''}`,
+            jsonld: { '@context': 'https://schema.org', '@type': 'Dataset', name: "Lloyd's and re/insurer combined ratios", url: `${SITE}/market-performance/`,
+                description: 'Combined ratios and premiums reported by Lloyd\'s and listed re/insurers, linked to source.', creator: { '@type': 'Organization', name: 'InsuranceWatcher' } } });
+        urls.push({ loc: '/market-performance/', priority: '0.9', changefreq: 'daily' });
+    } catch (e) { console.warn('prerender performance:', e.message); }
 
     // Securities class action tracker
     try {

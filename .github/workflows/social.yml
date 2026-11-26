@@ -1,0 +1,53 @@
+# Weekly Instagram posts: renders this week's images and captions from the live API.
+# Download them from the run's "Artifacts" section, or let the workflow publish them (see social/README.md).
+name: Weekly social posts
+on:
+  schedule:
+    - cron: "37 6 * * 1"   # Mondays 06:37 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  posts:
+    runs-on: ubuntu-latest
+    env:
+      API_URL: ${{ vars.API_URL || 'https://insurance-tracker-api-b22c67e40060.herokuapp.com/' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install renderer
+        run: npm i --no-save --no-package-lock playwright@1 && npx playwright install --with-deps chromium
+      - name: Render posts
+        run: |
+          echo "WEEK=$(date -u +%F)" >> "$GITHUB_ENV"
+          node social/make_posts.mjs "social-out"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: instagram-posts-${{ env.WEEK }}
+          path: social-out
+          retention-days: 30
+      # Optional auto-publish: set repository variable IG_AUTOPOST=true and secrets IG_USER_ID, IG_ACCESS_TOKEN.
+      - name: Put images on the site
+        if: vars.IG_AUTOPOST == 'true'
+        run: |
+          mkdir -p "public/social/$WEEK" && cp social-out/* "public/social/$WEEK/"
+          git config user.name "insurancewatcher-bot" && git config user.email "insurancewatcher-bot@users.noreply.github.com"
+          git add "public/social/$WEEK" && git commit -m "Social posts for $WEEK" && git push
+      - name: Wait for the site to deploy the images
+        if: vars.IG_AUTOPOST == 'true'
+        run: |
+          for i in $(seq 1 30); do
+            # unknown paths return the app page, so check for the JSON itself rather than a 200
+            curl -s "https://insurancewatcher.news/social/$WEEK/posts.json" | grep -q '"caption"' && exit 0; sleep 20
+          done
+          echo "images not live after 10 minutes" && exit 1
+      - name: Publish to Instagram
+        if: vars.IG_AUTOPOST == 'true'
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+        run: node social/publish.mjs "public/social/$WEEK"

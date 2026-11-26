@@ -106,3 +106,12 @@
 
 .event-row { cursor: pointer; }
 .event-row:hover .MuiCard-root { border-color: #22b8b1; }
+
+.perf-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.perf-table th { text-align: left; font-weight: 600; color: #5b6b78; padding: 6px 8px; border-bottom: 1px solid #e3e9ee; white-space: nowrap; }
+.perf-table td { padding: 6px 8px; border-bottom: 1px solid #f0f3f5; vertical-align: top; }
+.perf-table td:nth-child(-n+3) { white-space: nowrap; }
+
+.nav-links { scrollbar-width: none; -webkit-mask-image: linear-gradient(to right, #000 88%, transparent); mask-image: linear-gradient(to right, #000 88%, transparent); }
+.nav-links::-webkit-scrollbar { display: none; }
+@media (min-width: 700px) { .nav-links { -webkit-mask-image: none; mask-image: none; } }
