@@ -32,9 +32,50 @@ async function getJSON(p) {
 const SHELL = path.join(BUILD, 'app-shell.html');
 if (!fs.existsSync(SHELL)) fs.copyFileSync(path.join(BUILD, 'index.html'), SHELL);
 const template = fs.readFileSync(SHELL, 'utf8');
-const STYLE = `<style>.pre{max-width:920px;margin:0 auto;padding:24px 16px;font-family:Inter,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#14212b}
-.pre h1{font-size:28px;margin:8px 0}.pre p{color:#5b6b78}.pre li{margin:6px 0}.pre a{color:#14212b}.pre small{color:#5b6b78}
-.pre nav a{margin-right:12px;color:#5b6b78}.pre table{border-collapse:collapse}.pre td,.pre th{padding:4px 10px;border-bottom:1px solid #e3e8ec;text-align:left}</style>`;
+// The pages below must look right with JavaScript switched off: some company browsers (e.g. Zscaler isolation for
+// uncategorised sites) show them read-only, without the React app. So the static HTML carries its own header, cards
+// and tables, styled to match the app, and nothing here depends on a script.
+const STYLE = `<style>
+body{margin:0;background:#f4f6f8}
+.pre{font-family:Inter,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#14212b;line-height:1.45;min-height:100vh;display:flex;flex-direction:column}
+.pre a{color:#14212b}
+.pre-top{background:#122d42;color:#fff}
+.pre-top-in{max-width:920px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.pre-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff!important}
+.pre-brand b{font-size:20px;font-weight:800;letter-spacing:-.02em}.pre-brand b span{color:#3dd2cc}
+.pre-brand small{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600}
+.pre-links{display:flex;gap:16px;flex-wrap:wrap}.pre-links a{color:rgba(255,255,255,.8)!important;text-decoration:none;font-size:14px;font-weight:500;padding:4px 0;border-bottom:2px solid transparent}
+.pre-links a.on{color:#fff!important;border-color:#3dd2cc}
+.pre-main{max-width:920px;width:100%;box-sizing:border-box;margin:0 auto;padding:24px 16px 40px;flex:1}
+.pre h1{font-size:30px;letter-spacing:-.02em;margin:4px 0 6px}.pre h2{font-size:19px;margin:28px 0 10px}
+.pre p{color:#5b6b78;margin:0 0 14px}
+.pre nav{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 18px}
+.pre nav a{font-size:13px;text-decoration:none;color:#14212b;background:#fff;border:1px solid #d5dde3;border-radius:16px;padding:4px 11px}
+.pre nav a:hover{border-color:#3dd2cc}
+.pre ul{list-style:none;padding:0;margin:0;background:#fff;border:1px solid #e3e8ec;border-radius:12px;overflow:hidden}
+.pre li{padding:12px 16px;border-bottom:1px solid #eef2f5}.pre li:last-child{border-bottom:0}
+.pre li a{font-weight:600;text-decoration:none}.pre li a:hover{text-decoration:underline}
+.pre li small{display:block;color:#5b6b78;font-size:12.5px;margin-top:2px}
+.pre table{border-collapse:collapse;width:100%;background:#fff;border:1px solid #e3e8ec;border-radius:12px;overflow:hidden;font-size:14px}
+.pre th{background:#f3f6f8;font-weight:600;font-size:12.5px;color:#41525e}
+.pre td,.pre th{padding:9px 12px;border-bottom:1px solid #eef2f5;text-align:left;vertical-align:top}
+.pre .pre-map{background:#fff;border:1px solid #e3e8ec;border-radius:12px;padding:12px;margin:6px 0 18px}
+.pre .pre-map svg{display:block;width:100%;height:auto}
+.pre .pre-note{font-size:12px;color:#5b6b78;margin-top:6px}
+.pre-foot{border-top:1px solid #e3e8ec;background:#fff}
+.pre-foot-in{max-width:920px;margin:0 auto;padding:18px 16px;font-size:12.5px;color:#5b6b78}
+.pre-foot a{color:#5b6b78;margin-right:14px}
+@media (max-width:600px){.pre h1{font-size:24px}.pre-links{gap:12px}.pre-links a{font-size:13px}.pre-main{padding-top:18px}}
+</style>`;
+const MARK = `<svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0f1f2b"/><path d="M7 32 Q32 8 57 32 Q32 56 7 32 Z" fill="none" stroke="#fff" stroke-width="3.6" stroke-linejoin="round"/><circle cx="32" cy="32" r="11" fill="#13303f" stroke="#3dd2cc" stroke-width="2.6"/><circle cx="32" cy="32" r="2.6" fill="#3dd2cc"/><circle cx="35.6" cy="26" r="1.9" fill="#f0a35b"/></svg>`;
+const SECTIONS = [['/', 'News'], ['/cat-monitor/', 'Cat Monitor'], ['/cyber-monitor/', 'Cyber'], ['/market-performance/', 'Performance'], ['/securities-class-actions/', 'Class actions']];
+const header = (urlPath) => {
+    const on = (href) => (href === '/' ? !SECTIONS.slice(1).some(([h]) => urlPath.startsWith(h)) : urlPath.startsWith(href));
+    return `<header class="pre-top"><div class="pre-top-in"><a class="pre-brand" href="/">${MARK}<span><b>Insurance<span>Watcher</span></b><small>Market intelligence</small></span></a>
+<div class="pre-links">${SECTIONS.map(([h, l]) => `<a href="${h}"${on(h) ? ' class="on"' : ''}>${l}</a>`).join('')}</div></div></header>`;
+};
+const FOOTER = `<footer class="pre-foot"><div class="pre-foot-in">InsuranceWatcher collects headlines from public RSS feeds and links every article to its original publisher. Event data from GDACS and USGS; cyber data from CISA and the SEC. Not financial advice.
+<div style="margin-top:8px"><a href="/cat-monitor/">Cat Monitor</a><a href="/cyber-monitor/">Cyber Monitor</a><a href="/market-performance/">Market performance</a><a href="/securities-class-actions/">Securities class action tracker</a><a href="mailto:insurancewatcher@outlook.com">Contact</a></div></div></footer>`;
 
 function page({ urlPath, title, description, body, jsonld }) {
     const url = SITE + urlPath;
@@ -47,13 +88,31 @@ function page({ urlPath, title, description, body, jsonld }) {
 <meta property="og:url" content="${url}" /><meta property="og:image" content="${SITE}/og-card.png" /><meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" /><meta name="twitter:card" content="summary_large_image" />
 ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, '\\u003c')}</script>` : ''}
 ${STYLE}</head>`)
-        .replace('<div id="root"></div>', `<div id="root"><div class="pre">${body}</div></div>`);
+        .replace('<div id="root"></div>', `<div id="root"><div class="pre">${header(urlPath)}<main class="pre-main">${body}</main>${FOOTER}</div></div>`);
     const out = path.join(BUILD, urlPath, 'index.html');
     fs.mkdirSync(path.dirname(out), { recursive: true });
     fs.writeFileSync(out, html);
 }
 
-const navHtml = `<nav><a href="/">All news</a>${TAGS.map((t) => `<a href="/news/${slug(t)}">${esc(t)}</a>`).join('')}<a href="/cat-monitor">Cat Monitor</a><a href="/cyber-monitor/">Cyber Monitor</a><a href="/market-performance/">Market performance</a><a href="/securities-class-actions/">Securities class actions</a></nav>`;
+const navHtml = `<nav><a href="/">All news</a>${TAGS.map((t) => `<a href="/news/${slug(t)}/">${esc(t)}</a>`).join('')}</nav>`;
+// Static world map for the Cat Monitor page (same outline and projection as the app's EventMap).
+const MAPSRC = fs.readFileSync(path.resolve('src/components/worldMap.js'), 'utf8');
+const WM = new Function(MAPSRC.replace(/export const (\w+) =/g, 'var $1 =') + '; return { MAP_W, MAP_H, PROJ, LAND, BORDERS };')();
+const HAZ_COL = { TC: '#2f6fb3', WS: '#7c5cc4', EQ: '#b4661f', FL: '#13998f', WF: '#d4452b', VO: '#6b7280', DR: '#b8920f' };
+function staticMap(events) {
+    const proj = (lat, lon) => { const l = (lon * Math.PI) / 180, p = (lat * Math.PI) / 180, p2 = p * p, p4 = p2 * p2;
+        const x = l * (0.8707 - 0.131979 * p2 + p4 * (-0.013791 + p4 * (0.003971 * p2 - 0.001529 * p4)));
+        const y = p * (1.007226 + p2 * (0.015085 + p4 * (-0.044475 + 0.028874 * p2 - 0.005916 * p4)));
+        return [WM.PROJ.tx + WM.PROJ.k * x, WM.PROJ.ty - WM.PROJ.k * y]; };
+    const pts = events.filter((e) => e.lat != null && e.lon != null);
+    const maxN = Math.max(1, ...pts.map((e) => e.article_count || 0));
+    const dots = pts.map((e) => ({ e, r: 4 + 14 * Math.sqrt((e.article_count || 0) / maxN) })).sort((a, b) => b.r - a.r).map(({ e, r }) => {
+        const [x, y] = proj(e.lat, e.lon);
+        return `<a href="/cat-monitor/${e.slug}/"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${HAZ_COL[e.hazard] || '#6b7280'}" fill-opacity=".6" stroke="${e.alert === 'red' ? '#7a1414' : '#fff'}"><title>${esc(e.label)} (${fmtDate(e.start_date)})</title></circle></a>`;
+    }).join('');
+    return `<div class="pre-map"><svg viewBox="0 0 ${WM.MAP_W} ${WM.MAP_H}" role="img" aria-label="Map of catastrophe events in the last 12 months"><path d="${WM.LAND}" fill="#e8eef2"/><path d="${WM.BORDERS}" fill="none" stroke="#fff" stroke-width=".6"/>${dots}</svg>
+<div class="pre-note">${pts.length} events in the last 12 months · bubble size = market coverage · approximate locations · map data: Natural Earth</div></div>`;
+}
 const articleList = (rows) => `<ul>${rows.map((a) => `<li><a href="${esc(a.Link)}" rel="noopener">${esc(a.Title)}</a> <small>${esc(host(a.Link))} · ${fmtDate(a.YearMonthDay)}</small></li>`).join('')}</ul>`;
 
 async function main() {
@@ -94,7 +153,7 @@ async function main() {
         const events = await getJSON('events?limit=500');
         page({ urlPath: '/cat-monitor/', title: 'Cat Monitor: catastrophe events, insured loss estimates & market news · InsuranceWatcher',
             description: 'Track global natural catastrophes and the insurance market response: industry loss estimates over time and linked market headlines.',
-            body: `<h1>Cat Monitor</h1><p>Global catastrophes and the insurance market's response.</p>${navHtml}<ul>${events.map((e) => `<li><a href="/cat-monitor/${e.slug}/">${esc(e.label)}</a> <small>${fmtDate(e.start_date)}${e.countries ? ' · ' + esc(e.countries) : ''}</small></li>`).join('')}</ul>`,
+            body: `<h1>Cat Monitor</h1><p>Global catastrophes and the insurance market's response: how industry loss estimates developed, and the headlines that followed.</p>${staticMap(events.filter((e) => String(e.start_date).slice(0, 10) >= new Date(Date.now() - 365 * 864e5).toISOString().slice(0, 10)))}<h2>Events</h2><ul>${events.map((e) => `<li><a href="/cat-monitor/${e.slug}/">${esc(e.label)}</a> <small>${fmtDate(e.start_date)}${e.countries ? ' · ' + esc(e.countries) : ''}</small></li>`).join('')}</ul>`,
             jsonld: { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'Cat Monitor', url: `${SITE}/cat-monitor/` } });
         urls.push({ loc: '/cat-monitor/', priority: '0.9', changefreq: 'hourly' });
         const significant = events.filter((e) => e.article_count >= 3 || e.est_count > 0 || e.alert === 'red');
@@ -130,7 +189,7 @@ async function main() {
         const sec = cy.sec_latest.slice(0, 20).map((r) => `<li><a href="${esc(r.link)}" rel="noopener">${esc(r.company)}</a> <small>${esc(r.sector)} · ${fmtDate(r.filed)}</small></li>`).join('');
         page({ urlPath: '/cyber-monitor/', title: 'Cyber Monitor: exploited vulnerabilities, cyber incidents & loss events for insurers · InsuranceWatcher',
             description: 'Cyber aggregation risk for insurers: actively exploited vulnerabilities by systemic category, SEC cyber incident disclosures, cyber loss events with insured estimates, cyber pricing and AI exposure.',
-            body: `<h1>Cyber Monitor</h1>${navHtml}<ul>${cy.insights.map((x) => `<li>${esc(x)}</li>`).join('')}</ul><h2>Systemic watch</h2><table><tr><th>Category</th><th>Added, 90 days</th><th>Added, 12 months</th><th>Used by ransomware</th></tr>${sys}</table><h2>Cyber loss events</h2><ul>${evs}</ul>${sec ? `<h2>Cyber incidents disclosed to the SEC</h2><ul>${sec}</ul>` : ''}`,
+            body: `<h1>Cyber Monitor</h1><ul>${cy.insights.map((x) => `<li>${esc(x)}</li>`).join('')}</ul><h2>Systemic watch</h2><table><tr><th>Category</th><th>Added, 90 days</th><th>Added, 12 months</th><th>Used by ransomware</th></tr>${sys}</table><h2>Cyber loss events</h2><ul>${evs}</ul>${sec ? `<h2>Cyber incidents disclosed to the SEC</h2><ul>${sec}</ul>` : ''}`,
             jsonld: { '@context': 'https://schema.org', '@type': 'Dataset', name: 'Cyber Monitor for insurers', url: `${SITE}/cyber-monitor/`,
                 description: 'Exploited vulnerabilities by aggregation category, SEC cyber incident disclosures and cyber loss events.', creator: { '@type': 'Organization', name: 'InsuranceWatcher' } } });
         urls.push({ loc: '/cyber-monitor/', priority: '0.9', changefreq: 'daily' });
@@ -144,7 +203,7 @@ async function main() {
         const coRows = (perf.companies || []).map((c) => `<tr><td>${esc(c.company)}${c.segment ? ' (' + esc(c.segment) + ')' : ''}</td><td>${esc(c.latest.label)}</td><td>${c.latest.value}%</td><td><a href="${esc(c.latest.link)}" rel="noopener">${esc(host(c.latest.link))}</a></td></tr>`).join('');
         page({ urlPath: '/market-performance/', title: "Insurance market performance: Lloyd's and re/insurer combined ratios · InsuranceWatcher",
             description: "Lloyd's market results and reported combined ratios, loss ratios and premiums for listed insurers and reinsurers, each linked to its source.",
-            body: `<h1>Market performance</h1><p>Lloyd's market results and the combined ratios re/insurers report.</p>${navHtml}<h2>Lloyd's market</h2><table><tr><th>Year</th><th>Combined ratio</th><th>Gross written premium</th></tr>${llRows}</table>${coRows ? `<h2>Reported combined ratios</h2><table><tr><th>Company</th><th>Period</th><th>Combined ratio</th><th>Source</th></tr>${coRows}</table>` : ''}`,
+            body: `<h1>Market performance</h1><p>Lloyd's market results and the combined ratios re/insurers report.</p><h2>Lloyd's market</h2><table><tr><th>Year</th><th>Combined ratio</th><th>Gross written premium</th></tr>${llRows}</table>${coRows ? `<h2>Reported combined ratios</h2><table><tr><th>Company</th><th>Period</th><th>Combined ratio</th><th>Source</th></tr>${coRows}</table>` : ''}`,
             jsonld: { '@context': 'https://schema.org', '@type': 'Dataset', name: "Lloyd's and re/insurer combined ratios", url: `${SITE}/market-performance/`,
                 description: 'Combined ratios and premiums reported by Lloyd\'s and listed re/insurers, linked to source.', creator: { '@type': 'Organization', name: 'InsuranceWatcher' } } });
         urls.push({ loc: '/market-performance/', priority: '0.9', changefreq: 'daily' });
@@ -156,7 +215,7 @@ async function main() {
         const rows = (lit.cases || []).map((c) => `<tr><td>${esc(c.company || c.ticker)} (${esc(c.ticker)})</td><td>${esc(c.sector || '')}</td><td>${c.class_start ? fmtDate(c.class_start) + ' – ' + fmtDate(c.class_end) : ''}</td><td>${fmtDate(c.lead_deadline)}</td><td><a href="${esc(c.latest_link)}" rel="noopener">${fmtDate(c.first_seen)}</a></td></tr>`).join('');
         page({ urlPath: '/securities-class-actions/', title: 'Securities class action tracker: new D&O lawsuits, lead plaintiff deadlines · InsuranceWatcher',
             description: 'New US securities class actions, shareholder derivative suits and plaintiff-firm investigations as they are announced: class periods, lead-plaintiff deadlines, sectors and share drops.',
-            body: `<h1>Securities class action tracker</h1><p>New US securities class actions, derivative suits and investigations as they are announced: the D&amp;O claims pipeline.</p>${navHtml}${rows ? `<table><tr><th>Company</th><th>Sector</th><th>Class period</th><th>Lead plaintiff deadline</th><th>First announced</th></tr>${rows}</table>` : ''}`,
+            body: `<h1>Securities class action tracker</h1><p>New US securities class actions, derivative suits and investigations as they are announced: the D&amp;O claims pipeline.</p>${rows ? `<table><tr><th>Company</th><th>Sector</th><th>Class period</th><th>Lead plaintiff deadline</th><th>First announced</th></tr>${rows}</table>` : ''}`,
             jsonld: { '@context': 'https://schema.org', '@type': 'Dataset', name: 'Securities class action tracker', url: `${SITE}/securities-class-actions/`,
                 description: 'US securities class actions and derivative suits compiled from public law-firm announcements.', creator: { '@type': 'Organization', name: 'InsuranceWatcher' } } });
         urls.push({ loc: '/securities-class-actions/', priority: '0.9', changefreq: 'hourly' });
