@@ -226,7 +226,7 @@ export default function EventMap({ events, onSelect, selected, height, stateFilt
                     style={{ display: 'block', touchAction: zoomed || usMode ? 'none' : 'pan-y', cursor: zoomed || usMode ? 'grab' : 'default', userSelect: 'none' }}
                     onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
                     onDoubleClick={(e) => { const [cx, cy] = toMap(e.clientX, e.clientY); zoomAt(2, cx, cy); }}>
-                    <path d={LAND} fill="#e8eef2" stroke="none" />
+                    <path d={LAND} fill="#e8eef2" fillRule="evenodd" stroke="none" />
                     <path d={BORDERS} fill="none" stroke="#ffffff" strokeWidth={0.6 / Math.sqrt(scale)} />
                     {usMode && states && byState && states.map((s) => {
                         const a = byState[s.abbr];

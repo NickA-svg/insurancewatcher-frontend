@@ -77,7 +77,7 @@ function catPost(events) {
     }).join('');
     const top = [...recent].filter((e) => e.article_count > 0).sort((a, b) => b.article_count - a.article_count).slice(0, 4);
     const haz = [...new Set(recent.map((e) => e.hazard))].filter((h) => HAZ[h]);
-    const svg = `<svg viewBox="0 0 ${MAP.MAP_W} ${MAP.MAP_H}" width="936" style="display:block;margin:0 auto"><path d="${MAP.LAND}" fill="#22384a"/><path d="${MAP.BORDERS}" fill="none" stroke="#0f1f2b" stroke-width=".8"/>${dots}</svg>`;
+    const svg = `<svg viewBox="0 0 ${MAP.MAP_W} ${MAP.MAP_H}" width="936" style="display:block;margin:0 auto"><path d="${MAP.LAND}" fill="#22384a" fill-rule="evenodd"/><path d="${MAP.BORDERS}" fill="none" stroke="#0f1f2b" stroke-width=".8"/>${dots}</svg>`;
     const html = page(`<div class="kicker">Cat watch · last 30 days</div><h1>${recent.length} catastrophes the market is watching</h1>
         <div class="body">${svg}<div class="legend">${haz.map((h) => `<span><i class="dot" style="background:${HAZ[h][0]}"></i>${HAZ[h][1]}</span>`).join('')}<span>bubble = market coverage</span></div>
         ${top.map((e) => `<div class="row"><div><div class="name">${esc(e.label.replace(/\s*\([A-Z][a-z]{2,3} \d{4}\)$/, ''))}</div><div class="meta">${fmt(e.start_date)}${e.countries ? ' · ' + esc(e.countries.split(',').slice(0, 2).join(',')) : ''}</div></div><div class="val">${e.article_count}<span style="font-size:22px;color:#9fb0bd"> stories</span></div></div>`).join('')}</div>`);
@@ -140,11 +140,30 @@ function cyberPost(cy) {
     return { name: '4-cyber-watch', html, caption };
 }
 
+// 5. Marine war watch: incidents by type and area, plus the latest JWC Listed Areas change
+function marinePost(m) {
+    if (!m || !m.tiles || !m.tiles.incidents90) return null;
+    const t = m.tiles;
+    const kinds = m.incident_kinds.filter((k) => k.n90 > 0).sort((a, b) => b.n90 - a.n90);
+    const max = Math.max(1, ...kinds.map((k) => k.n90));
+    const col = { attack: '#e05a4b', mine: '#a46ad1', seizure: '#f0a35b', piracy: '#9fb0bd', gnss: '#5b9be0', harassment: '#9fb0bd' };
+    const bars = kinds.map((k) => `<div style="margin:14px 0"><div style="display:flex;justify-content:space-between;font-size:30px"><span>${esc(k.label)}</span><b>${k.n90}</b></div>
+        <div style="height:20px;background:#22384a;border-radius:6px;margin-top:8px"><div style="height:100%;width:${(100 * k.n90) / max}%;background:${col[k.kind] || '#3dd2cc'};border-radius:6px"></div></div></div>`).join('');
+    const areas = m.regions.slice(0, 4).map((r) => `${esc(r.region)} ${r.incidents90}`).join(' · ');
+    const ch = m.jwc.changes[0];
+    const html = page(`<div class="kicker">Marine war watch · last 90 days</div><h1>${t.incidents90} maritime security incident${t.incidents90 === 1 ? '' : 's'}</h1>
+        <div class="sub">${areas}</div>
+        <div class="body">${bars}
+        <div style="margin-top:auto;background:#17303f;border-left:6px solid #f0a35b;padding:20px 24px;font-size:26px;line-height:1.35">Listed Areas: ${esc(ch.ref)} (${fmtY(ch.date)}). ${esc(ch.summary)}</div></div>`);
+    const caption = `Marine war watch: ${t.incidents90} maritime security incident${t.incidents90 === 1 ? '' : 's'} reported in the last 90 days (${areas}).\n\nEach one tests hull war, cargo war and war P&I cover; seizures also raise blocking and trapping.\n\nLatest JWC Listed Areas change: ${ch.ref}. ${ch.summary}\n\nMap, chokepoints and every source: link in bio (${SITE}/marine-monitor).\n\nSources: news reports linked on the page; Joint War Committee circulars (LMA/IUA).\n\n#marineinsurance #warrisk #shipping #hullandwar #cargoinsurance #londonmarket #lloyds #reinsurance`;
+    return { name: '5-marine-watch', html, caption };
+}
+
 async function main() {
     if (!API || API === '/') throw new Error('Set API_URL to the InsuranceWatcher API');
-    const [events, lit, perf, cy] = await Promise.all([get('events?limit=120'), get('securities-cases?kind=sca&limit=100'), get('performance'),
-        get('cyber').catch(() => null)]);
-    const posts = [catPost(events), cyberPost(cy), suitsPost(lit), resultsPost(perf)].filter(Boolean);
+    const [events, lit, perf, cy, mar] = await Promise.all([get('events?limit=120'), get('securities-cases?kind=sca&limit=100'), get('performance'),
+        get('cyber').catch(() => null), get('marine').catch(() => null)]);
+    const posts = [catPost(events), cyberPost(cy), marinePost(mar), suitsPost(lit), resultsPost(perf)].filter(Boolean);
     fs.mkdirSync(OUT, { recursive: true });
     const { chromium } = await import('playwright');
     const browser = await chromium.launch(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {});

@@ -6,13 +6,16 @@ import CatMonitor from "./pages/CatMonitor";
 import Litigation from "./pages/Litigation";
 import Performance from "./pages/Performance";
 import CyberMonitor from "./pages/CyberMonitor";
+import MarineMonitor from "./pages/MarineMonitor";
 import { usePath, tagSlug } from "./router";
 import { tagWords } from "./components/TitleTags";
 
 function App() {
     const path = usePath();
     let page;
-    if (path.startsWith('/cyber-monitor')) {
+    if (path.startsWith('/marine-monitor')) {
+        page = <MarineMonitor />;
+    } else if (path.startsWith('/cyber-monitor')) {
         page = <CyberMonitor />;
     } else if (path.startsWith('/market-performance')) {
         page = <Performance />;

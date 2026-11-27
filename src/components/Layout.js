@@ -14,10 +14,11 @@ const Layout = ({ children, path }) => {
                     ))}
                     <a {...linkProps('/cat-monitor/')}>Cat Monitor</a>
                     <a {...linkProps('/cyber-monitor/')}>Cyber Monitor</a>
+                    <a {...linkProps('/marine-monitor/')}>Marine War Monitor</a>
                     <a {...linkProps('/market-performance/')}>Market performance</a>
                     <a {...linkProps('/securities-class-actions/')}>Securities class action tracker</a>
                 </nav>
-                <p>InsuranceWatcher collects headlines from public RSS feeds and links every article to its original publisher. Event data from GDACS and USGS; cyber data from CISA and the SEC. Litigation data from public law-firm announcements. Not financial advice.</p>
+                <p>InsuranceWatcher collects headlines from public RSS feeds and links every article to its original publisher. Event data from GDACS and USGS; cyber data from CISA and the SEC; oil flows from the US EIA. Litigation data from public law-firm announcements. Not financial advice.</p>
                 <p><a href="mailto:insurancewatcher@outlook.com">Contact</a></p>
             </footer>
         </>

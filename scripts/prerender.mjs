@@ -68,14 +68,14 @@ body{margin:0;background:#f4f6f8}
 @media (max-width:600px){.pre h1{font-size:24px}.pre-links{gap:12px}.pre-links a{font-size:13px}.pre-main{padding-top:18px}}
 </style>`;
 const MARK = `<svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0f1f2b"/><path d="M7 32 Q32 8 57 32 Q32 56 7 32 Z" fill="none" stroke="#fff" stroke-width="3.6" stroke-linejoin="round"/><circle cx="32" cy="32" r="11" fill="#13303f" stroke="#3dd2cc" stroke-width="2.6"/><circle cx="32" cy="32" r="2.6" fill="#3dd2cc"/><circle cx="35.6" cy="26" r="1.9" fill="#f0a35b"/></svg>`;
-const SECTIONS = [['/', 'News'], ['/cat-monitor/', 'Cat Monitor'], ['/cyber-monitor/', 'Cyber'], ['/market-performance/', 'Performance'], ['/securities-class-actions/', 'Class actions']];
+const SECTIONS = [['/', 'News'], ['/cat-monitor/', 'Cat Monitor'], ['/cyber-monitor/', 'Cyber'], ['/marine-monitor/', 'Marine'], ['/market-performance/', 'Performance'], ['/securities-class-actions/', 'Class actions']];
 const header = (urlPath) => {
     const on = (href) => (href === '/' ? !SECTIONS.slice(1).some(([h]) => urlPath.startsWith(h)) : urlPath.startsWith(href));
     return `<header class="pre-top"><div class="pre-top-in"><a class="pre-brand" href="/">${MARK}<span><b>Insurance<span>Watcher</span></b><small>Market intelligence</small></span></a>
 <div class="pre-links">${SECTIONS.map(([h, l]) => `<a href="${h}"${on(h) ? ' class="on"' : ''}>${l}</a>`).join('')}</div></div></header>`;
 };
 const FOOTER = `<footer class="pre-foot"><div class="pre-foot-in">InsuranceWatcher collects headlines from public RSS feeds and links every article to its original publisher. Event data from GDACS and USGS; cyber data from CISA and the SEC. Not financial advice.
-<div style="margin-top:8px"><a href="/cat-monitor/">Cat Monitor</a><a href="/cyber-monitor/">Cyber Monitor</a><a href="/market-performance/">Market performance</a><a href="/securities-class-actions/">Securities class action tracker</a><a href="mailto:insurancewatcher@outlook.com">Contact</a></div></div></footer>`;
+<div style="margin-top:8px"><a href="/cat-monitor/">Cat Monitor</a><a href="/cyber-monitor/">Cyber Monitor</a><a href="/marine-monitor/">Marine War Monitor</a><a href="/market-performance/">Market performance</a><a href="/securities-class-actions/">Securities class action tracker</a><a href="mailto:insurancewatcher@outlook.com">Contact</a></div></div></footer>`;
 
 function page({ urlPath, title, description, body, jsonld }) {
     const url = SITE + urlPath;
@@ -110,7 +110,7 @@ function staticMap(events) {
         const [x, y] = proj(e.lat, e.lon);
         return `<a href="/cat-monitor/${e.slug}/"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${HAZ_COL[e.hazard] || '#6b7280'}" fill-opacity=".6" stroke="${e.alert === 'red' ? '#7a1414' : '#fff'}"><title>${esc(e.label)} (${fmtDate(e.start_date)})</title></circle></a>`;
     }).join('');
-    return `<div class="pre-map"><svg viewBox="0 0 ${WM.MAP_W} ${WM.MAP_H}" role="img" aria-label="Map of catastrophe events in the last 12 months"><path d="${WM.LAND}" fill="#e8eef2"/><path d="${WM.BORDERS}" fill="none" stroke="#fff" stroke-width=".6"/>${dots}</svg>
+    return `<div class="pre-map"><svg viewBox="0 0 ${WM.MAP_W} ${WM.MAP_H}" role="img" aria-label="Map of catastrophe events in the last 12 months"><path d="${WM.LAND}" fill="#e8eef2" fill-rule="evenodd"/><path d="${WM.BORDERS}" fill="none" stroke="#fff" stroke-width=".6"/>${dots}</svg>
 <div class="pre-note">${pts.length} events in the last 12 months · bubble size = market coverage · approximate locations · map data: Natural Earth</div></div>`;
 }
 const articleList = (rows) => `<ul>${rows.map((a) => `<li><a href="${esc(a.Link)}" rel="noopener">${esc(a.Title)}</a> <small>${esc(host(a.Link))} · ${fmtDate(a.YearMonthDay)}</small></li>`).join('')}</ul>`;
@@ -180,6 +180,21 @@ async function main() {
             } catch (err) { console.warn(`prerender event ${e.slug}:`, err.message); }
         }
     } catch (e) { console.warn('prerender cat monitor:', e.message); }
+
+    // Marine War Monitor
+    try {
+        const m = await getJSON('marine');
+        const kinds = { attack: 'Attack', mine: 'Mine', seizure: 'Seizure', piracy: 'Piracy', gnss: 'GPS jamming', harassment: 'Harassment' };
+        const inc = m.incidents.slice(0, 25).map((i) => `<li><a href="${esc(i.link)}" rel="noopener">${esc(i.title)}</a> <small>${fmtDate(i.published)} · ${kinds[i.kind] || i.kind} · ${esc(i.region)} · ${esc(host(i.link))}</small></li>`).join('');
+        const cps = m.chokepoints.map((c) => `<tr><td>${esc(c.name)}</td><td>${c.oil_mbd}</td><td>${c.news90}</td><td>${c.incidents90}</td></tr>`).join('');
+        const jwc = m.jwc.changes.map((c) => `<li><b>${esc(c.ref)}</b> (${fmtDate(c.date)}): ${esc(c.summary)} <small>${c.links.map((l) => `<a href="${esc(l.url)}" rel="noopener">${esc(l.label)}</a>`).join(' · ')}</small></li>`).join('');
+        page({ urlPath: '/marine-monitor/', title: 'Marine War Monitor: shipping attacks, JWC Listed Areas & war risk for insurers · InsuranceWatcher',
+            description: 'Maritime security incidents, JWC Listed Areas changes, shipping chokepoints and what they mean for hull war, cargo war and war P&I insurance. Every item linked to its source.',
+            body: `<h1>Marine War Monitor</h1><p>War risk at sea through an insurer's eyes: incidents, JWC Listed Areas, chokepoints and the covers each event tests.</p><ul>${m.insights.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>${inc ? `<h2>Incident tracker</h2><ul>${inc}</ul>` : ''}<h2>Chokepoints</h2><table><tr><th>Chokepoint</th><th>Oil, million barrels/day (EIA)</th><th>Headlines, 90 days</th><th>Incidents, 90 days</th></tr>${cps}</table><h2>JWC Listed Areas changes</h2><ul>${jwc}</ul><p><small>Oil flows: <a href="${esc(m.oil_source.url)}" rel="noopener">${esc(m.oil_source.label)}</a>. Listed Areas: <a href="${esc(m.jwc.page)}" rel="noopener">Joint War Committee</a>.</small></p>`,
+            jsonld: { '@context': 'https://schema.org', '@type': 'Dataset', name: 'Marine War Monitor', url: `${SITE}/marine-monitor/`,
+                description: 'Maritime security incidents from news headlines, JWC Listed Areas changes and shipping chokepoints, for marine and war insurers.', creator: { '@type': 'Organization', name: 'InsuranceWatcher' } } });
+        urls.push({ loc: '/marine-monitor/', priority: '0.8', changefreq: 'hourly' });
+    } catch (e) { console.warn('prerender marine:', e.message); }
 
     // Cyber Monitor
     try {
