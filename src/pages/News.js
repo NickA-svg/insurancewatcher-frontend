@@ -81,7 +81,7 @@ export default function Home({ tag = "All" }) {
     const listRef = React.useRef(null);
 
     React.useEffect(() => {
-        if (tag === "All") setPageMeta("InsuranceWatcher · Re/insurance and London market news", "The latest re/insurance and London market news from leading publications, tagged by line of business, with a market-cycle tracker and Cat Monitor.");
+        if (tag === "All") setPageMeta("InsuranceWatcher · Re/insurance market news, cat losses & cyber intelligence", "Free re/insurance and London market intelligence: the latest news by line of business, a market-cycle tracker, catastrophe loss estimates, cyber exposure and market performance.");
         else setPageMeta(`${tag} insurance news & market cycle · InsuranceWatcher`, `Latest ${tag.toLowerCase()} insurance and reinsurance news, rate momentum and market-moving events, updated through the day.`);
     }, [tag]);
 

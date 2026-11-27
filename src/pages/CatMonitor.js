@@ -111,7 +111,9 @@ export default function CatMonitor({ slug }) {
     const [events, setEvents] = React.useState(null);
     const [pinned, setPinned] = React.useState(null);
     const [error, setError] = React.useState(false);
+    const [usState, setUsState] = React.useState(null);
     const [period, setPeriod] = React.useState(365);
+    React.useEffect(() => { setUsState(null); }, [period, hazard, debounced, withEst]);
 
     React.useEffect(() => { const t = setTimeout(() => setDebounced(q), 300); return () => clearTimeout(t); }, [q]);
     React.useEffect(() => {
@@ -142,6 +144,8 @@ export default function CatMonitor({ slug }) {
     const showPinnedSeparately = pinned && !list.find((e) => e.slug === pinned.slug);
     const cutoff = period ? new Date(Date.now() - period * 864e5).toISOString().slice(0, 10) : '';
     const mapped = list.filter((e) => String(e.start_date).slice(0, 10) >= cutoff);
+    const inState = usState ? new Set(usState.slugs) : null;
+    const shownList = inState ? list.filter((e) => inState.has(e.slug)) : list;
     const openFromMap = (s) => {
         navigate(`/cat-monitor/${s}/`, { replace: true, scroll: false });
         setTimeout(() => { const el = document.getElementById(`event-${s}`); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
@@ -181,14 +185,21 @@ export default function CatMonitor({ slug }) {
                             ))}
                         </Stack>
                     </Stack>
-                    <EventMap events={mapped} onSelect={openFromMap} selected={slug} />
+                    <EventMap events={mapped} onSelect={openFromMap} selected={slug} stateFilter={usState && usState.abbr} onStateFilter={setUsState} />
                 </Card>
             )}
             {showPinnedSeparately && <EventRow e={pinned} open onToggle={() => toggle(pinned.slug)} />}
             {error ? <Alert severity="warning">Events couldn't load. Please try again shortly.</Alert>
                 : events === null ? <div className="loader-div"><CircularProgress color="secondary" /></div>
                 : list.length === 0 ? <Alert severity="info">No events match. Try a broader search.</Alert>
-                : list.map((e) => <EventRow key={e.slug} e={e} open={slug === e.slug} onToggle={() => toggle(e.slug)} />)}
+                : <>
+                    {usState && (
+                        <Alert severity="info" sx={{ mb: 1.5 }} action={<Chip size="small" label="Show all" onClick={() => setUsState(null)} />}>
+                            {shownList.length} event{shownList.length === 1 ? '' : 's'} mapped in {usState.name}{period ? ' in this period' : ''}
+                        </Alert>
+                    )}
+                    {shownList.map((e) => <EventRow key={e.slug} e={e} open={slug === e.slug} onToggle={() => toggle(e.slug)} />)}
+                </>}
         </div>
     );
 }

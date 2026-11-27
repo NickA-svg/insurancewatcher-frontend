@@ -44,7 +44,7 @@ function page({ urlPath, title, description, body, jsonld }) {
         .replace('</head>', `<link rel="canonical" href="${url}" />
 <meta property="og:type" content="website" /><meta property="og:site_name" content="InsuranceWatcher" />
 <meta property="og:title" content="${esc(title)}" /><meta property="og:description" content="${esc(description)}" />
-<meta property="og:url" content="${url}" /><meta name="twitter:card" content="summary" />
+<meta property="og:url" content="${url}" /><meta property="og:image" content="${SITE}/og-card.png" /><meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" /><meta name="twitter:card" content="summary_large_image" />
 ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, '\\u003c')}</script>` : ''}
 ${STYLE}</head>`)
         .replace('<div id="root"></div>', `<div id="root"><div class="pre">${body}</div></div>`);
@@ -64,10 +64,11 @@ async function main() {
     // Home page: latest headlines into the main index.html
     try {
         const latest = (await Promise.all([0, 1, 2].map((p) => getJSON(`articles/${p}/All/All`)))).flat();
-        page({ urlPath: '/', title: 'InsuranceWatcher · Re/insurance and London market news',
-            description: 'The latest re/insurance and London market news from leading publications, tagged by line of business, with a market-cycle tracker and Cat Monitor.',
+        page({ urlPath: '/', title: 'InsuranceWatcher · Re/insurance market news, cat losses & cyber intelligence',
+            description: 'Free re/insurance and London market intelligence: the latest news by line of business, a market-cycle tracker, catastrophe loss estimates, cyber exposure and market performance.',
             body: `<h1>Latest re/insurance news</h1><p>Headlines from leading market publications, with the market cycle and the events behind it.</p>${navHtml}${articleList(latest)}`,
-            jsonld: { '@context': 'https://schema.org', '@type': 'WebSite', name: 'InsuranceWatcher', url: SITE } });
+            jsonld: [{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'InsuranceWatcher', url: SITE },
+                { '@context': 'https://schema.org', '@type': 'Organization', name: 'InsuranceWatcher', url: SITE, logo: `${SITE}/logo512.png` }] });
     } catch (e) { console.warn('prerender home:', e.message); }
 
     // One page per line of business
@@ -109,9 +110,13 @@ async function main() {
                 const table = est.length ? `<h2>Industry insured loss estimates</h2><table><tr><th>Date</th><th>Estimate</th><th>Source</th></tr>${est.map((x) => `<tr><td>${fmtDate(x.published)}</td><td>${sym(x.currency)}${bn(x.low)}${x.high > x.low ? '–' + bn(x.high) : ''}bn</td><td><a href="${esc(x.link)}" rel="noopener">${esc(x.estimator || host(x.link))}</a></td></tr>`).join('')}</table>` : '';
                 page({ urlPath: `/cat-monitor/${d.slug}/`, title: `${d.label}: insured loss estimates & market news · InsuranceWatcher`, description: desc,
                     body: `<h1>${esc(d.label)}</h1><p>${esc(desc)}</p>${navHtml}${table}<h2>Market headlines</h2>${articleList(d.articles || [])}`,
-                    jsonld: { '@context': 'https://schema.org', '@type': 'Event', name: d.label, startDate: String(d.start_date).slice(0, 10),
-                        ...(d.end_date ? { endDate: String(d.end_date).slice(0, 10) } : {}), eventStatus: 'https://schema.org/EventScheduled',
-                        location: { '@type': 'Place', name: d.countries || 'Global' }, description: desc, url: `${SITE}/cat-monitor/${d.slug}/` } });
+                    // A catastrophe is not a schema.org Event (Google reads those as ticketed events and asks for
+                    // offers, performer and organizer), so describe the page itself and what it is about.
+                    jsonld: { '@context': 'https://schema.org', '@type': 'WebPage', name: `${d.label}: insured loss estimates & market news`,
+                        description: desc, url: `${SITE}/cat-monitor/${d.slug}/`, dateModified: new Date().toISOString().slice(0, 10),
+                        about: { '@type': 'Thing', name: d.label, description: `Natural catastrophe, ${fmtDate(d.start_date)}${d.countries ? `, ${d.countries}` : ''}` },
+                        isPartOf: { '@type': 'CollectionPage', name: 'Cat Monitor', url: `${SITE}/cat-monitor/` },
+                        publisher: { '@type': 'Organization', name: 'InsuranceWatcher', url: SITE } } });
                 urls.push({ loc: `/cat-monitor/${d.slug}/`, priority: '0.6', changefreq: 'daily' });
             } catch (err) { console.warn(`prerender event ${e.slug}:`, err.message); }
         }

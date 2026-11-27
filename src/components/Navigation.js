@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { AppBar, Box, Button, Toolbar } from '@mui/material';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
-import logo from '../assets/IWLogo.png';
+import BrandLogo from './BrandLogo';
 import { linkProps } from '../router';
 
 function NavLink({ to, active, children }) {
@@ -21,8 +21,8 @@ export default function NavigationBar({ path = '/' }) {
     return (
         <AppBar position="static" color="primary" elevation={0}>
             <Toolbar sx={{ maxWidth: 952, width: '100%', mx: 'auto', gap: { xs: 1, sm: 2 }, minHeight: { xs: 60, sm: 68 } }}>
-                <Box component="a" {...linkProps('/')} sx={{ display: 'flex', flexShrink: 0 }}>
-                    <Box component="img" src={logo} alt="InsuranceWatcher" sx={{ height: { xs: 28, sm: 36 } }} />
+                <Box component="a" {...linkProps('/')} aria-label="InsuranceWatcher home" sx={{ display: 'flex', flexShrink: 0, textDecoration: 'none' }}>
+                    <BrandLogo />
                 </Box>
                 <Box className="nav-links" sx={{ display: 'flex', gap: 0.5, ml: { xs: 0.5, sm: 2 }, minWidth: 0, overflowX: 'auto', flexShrink: 1 }}>
                     <NavLink to="/" active={!onCat && !onLit && !onPerf && !onCyber}>News</NavLink>
